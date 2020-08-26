@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: cerms-acs
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/cerms_acs
+    driver-class-name: com.mysql.jdbc.Driver
+    username: wheelsupuser
+    password: WHEELSUP@!!2013
+    testWhileIdle: true
+    validationQuery: SELECT 1
+
+  # ===============================
+  # = JPA / HIBERNATE
+  # ===============================
+  # Use spring.jpa.properties.* for Hibernate native properties (the prefix is
+  # stripped before adding them to the entity manager).
+
+  # Show or not log for each sql query
+  jpa:
+    show-sql: false
+    # Hibernate ddl auto (create, create-drop, update): with "update" the database
+    # schema will be automatically updated accordingly to java detail found in
+    # the project
+    hibernate:
+      ddl-auto: none
+      use-new-id-generator-mappings: false
+      dialect: org.hibernate.dialect.MySQL5Dialect
+      naming-strategy: org.hibernate.cfg.EJB3NamingStrategy
+      naming:
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      jadira:
+        usertype:
+          autoRegisterUserTypes: true
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        cache:
+          use_second_level_cache: false8447
+          use_query_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+        format_sql: true
+
+
+
+server:
+  port: 8450
+
+logging:
+  level:
+    org.springframework.web: INFO
+    org.springframework.security: debug
+    org.springframework.aop.interceptor: info
+
+cerms:
+  acs:
+    document:
+      poller:
+        enabled: true
+        schedulerInterval: 0 0/1 * ? * *
+
+    folder:
+      path:
+        source: 'C:\personal\acsFiles'
+        destination:
+          success: 'C:\personal\processedFiles'
+          failure: 'C:\personal\failedFiles'
