@@ -8,21 +8,17 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
-
-import java.awt.print.Pageable;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDate;
+import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDateString;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @Slf4j
 public class DocumentProcessor {
+
+	private static final String PATH_DELIMITER = "\\";
 
 	private final DFSFileProcessor dfsFileProcessor;
 	private final NixieCOAFileProcessor nixieCOAFileProcessor;
@@ -42,11 +38,9 @@ public class DocumentProcessor {
 			if(file.getName().startsWith("P")) {
 
 			} else if(file.getName().startsWith("D")) {
-				processedFileMap.put(file, false);
-				//sdFileProcessor.processSDFile(file);
+				processedFileMap.put(file, sdFileProcessor.processSDFile(file));
 			} else {
-				processedFileMap.put(file, true);
-				//dfsFileProcessor.processDFSFile(file);
+				processedFileMap.put(file, dfsFileProcessor.processDFSFile(file));
 			}
 		}
 
@@ -58,33 +52,24 @@ public class DocumentProcessor {
 
 		try {
 			File source = new File(documentResource.getSourceFolderPath());
-			File successDestination = new File(documentResource.getSuccessDestinationFolderPath());
-			File failureDestination = new File(documentResource.getFailureDestinationFolderPath());
-			processedFileMap.entrySet().forEach(processedEntry -> {
-				File file = processedEntry.getKey();
-				String sourcePath = documentResource.getSourceFolderPath() + "\\" + file.getName();
+			processedFileMap.forEach((file, isSuccessfullyProcessed) -> {
+				String sourcePath = documentResource.getSourceFolderPath() + PATH_DELIMITER + file.getName();
 				String fileName = FilenameUtils.getBaseName(file.getName());
 				String fileExtension = FilenameUtils.getExtension(file.getName());
-				String processedFileName = fileName + "_" + getCurrentDate() + "." + fileExtension;
-				String filePath = "";
-				if(BooleanUtils.isTrue(processedEntry.getValue())) {
-					filePath = documentResource.getSuccessDestinationFolderPath()+ "\\" + processedFileName;
+				String processedFileName = fileName + "_" + getCurrentDateString() + "." + fileExtension;
+				String filePath;
+				if(BooleanUtils.isTrue(isSuccessfullyProcessed)) {
+					filePath = documentResource.getSuccessDestinationFolderPath()+ PATH_DELIMITER + processedFileName;
 				} else {
-					filePath = documentResource.getFailureDestinationFolderPath()+"\\" + processedFileName;
+					filePath = documentResource.getFailureDestinationFolderPath() + PATH_DELIMITER + processedFileName;
 				}
 				try {
 					FileUtils.moveFile(new File(sourcePath), new File(filePath));
 				} catch (Exception ex) {
-
+					log.info("File move exception: " + ex);
 				}
 
 			});
-//
-//			File source = new File(documentResource.getSourceFolderPath());
-//			File destination = new File(documentResource.getSuccessDestinationFolderPath());
-
-//			FileSystemUtils.copyRecursively(source, destination);
-//			FileUtils.cleanDirectory(source);
 
 			FileUtils.cleanDirectory(source);
 
