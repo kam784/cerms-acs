@@ -74,8 +74,7 @@ public class DocumentProcessor {
 			FileUtils.cleanDirectory(source);
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			log.warn("File move operation in could not be completed successfully");
+			log.warn("File move operation in could not be completed successfully" + e);
 		}
 	}
 
