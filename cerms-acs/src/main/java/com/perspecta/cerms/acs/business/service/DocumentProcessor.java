@@ -1,5 +1,7 @@
 package com.perspecta.cerms.acs.business.service;
 
+import com.perspecta.cerms.acs.business.service.delegate.email.ApplicationEmailSender;
+import com.perspecta.cerms.acs.business.service.delegate.email.ApplicationHTMLCreator;
 import com.perspecta.cerms.acs.business.service.resource.DocumentResource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +11,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDateString;
 
 @Service
@@ -19,10 +25,13 @@ import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrent
 public class DocumentProcessor {
 
 	private static final String PATH_DELIMITER = "\\";
+	private static final String TEMPLATE = "FileProcessError";
 
 	private final DFSFileProcessor dfsFileProcessor;
 	private final NixieCOAFileProcessor nixieCOAFileProcessor;
 	private final SDFileProcessor sdFileProcessor;
+	private final ApplicationHTMLCreator applicationHTMLCreator;
+	private final ApplicationEmailSender applicationEmailSender;
 	private final DocumentResource documentResource;
 
 	public void processDocuments() {
@@ -44,8 +53,25 @@ public class DocumentProcessor {
 			}
 		}
 
+		sendErrorEmail(processedFileMap);
+
 		moveProcessedFiles(processedFileMap);
 
+	}
+
+	private void sendErrorEmail(Map<File, Boolean> processedFileMap) {
+
+		try {
+			List<File> errorFiles = processedFileMap.entrySet().stream()
+					.filter(entry -> BooleanUtils.isFalse(entry.getValue()))
+					.map(Map.Entry::getKey)
+					.collect(Collectors.toList());
+
+			String emailBody = applicationHTMLCreator.withTemplate(TEMPLATE).process();
+			applicationEmailSender.sendEmail(errorFiles, emailBody);
+		} catch (Exception ex) {
+			log.error("Error while sending the file error email. " + ex);
+		}
 	}
 
 	private void moveProcessedFiles(Map<File, Boolean> processedFileMap) {
@@ -66,7 +92,7 @@ public class DocumentProcessor {
 				try {
 					FileUtils.moveFile(new File(sourcePath), new File(filePath));
 				} catch (Exception ex) {
-					log.info("File move exception: " + ex);
+					log.error("File move exception: " + ex);
 				}
 
 			});

@@ -43,7 +43,24 @@ spring:
             factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
         format_sql: true
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: rosheena.khan@gmail.com
+    password: Floatzone786!
 
+  # Other properties
+    properties:
+      mail:
+        debug: true
+        transport:
+          protocol: smtp
+        smtp:
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
 
 server:
   port: 8450
