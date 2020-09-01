@@ -49,7 +49,7 @@ public class DFSFileProcessor {
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 
 		} catch (Exception ex) {
-			log.info("Could not process dfs file: " + ex);
+			log.warn("Could not process dfs file: " + ex);
 		}
 
 		return fileProcessLogs.size() == 1;

@@ -49,7 +49,7 @@ public class SDFileProcessor {
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 
 		} catch (Exception ex) {
-			log.info("Could not process sd file: " + ex);
+			log.warn("Could not process sd file: " + ex);
 		}
 
 		return fileProcessLogs.size() == 1;

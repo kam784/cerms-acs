@@ -46,7 +46,7 @@ public class DocumentProcessor {
 		for(File file: acsFiles) {
 			// P stands for NixieFile
 			if(file.getName().startsWith("P")) {
-
+				processedFileMap.put(file, nixieCOAFileProcessor.processNixieCOAFile(file));
 			} else if(file.getName().startsWith("D")) {
 				processedFileMap.put(file, sdFileProcessor.processSDFile(file));
 			} else {
@@ -56,7 +56,7 @@ public class DocumentProcessor {
 
 		sendErrorEmail(processedFileMap);
 
-		moveProcessedFiles(processedFileMap);
+	//	moveProcessedFiles(processedFileMap);
 
 	}
 

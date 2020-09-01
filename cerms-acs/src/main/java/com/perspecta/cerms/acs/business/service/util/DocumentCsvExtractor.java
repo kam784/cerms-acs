@@ -9,9 +9,12 @@ import com.perspecta.cerms.acs.business.service.dto.SDCsvRow;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 @Component
@@ -77,7 +80,7 @@ public class DocumentCsvExtractor {
 					totalRows++;
 					successfulRows++;
 				} catch (Throwable throwable) {
-					log.warn(String.format("Row [%d] will be skipped - %s", totalRows, throwable.getMessage()));
+					log.warn(String.format("DFS Row [%d] will be skipped - %s", totalRows, throwable.getMessage()));
 					totalRows++;
 				}
 			}
@@ -85,7 +88,7 @@ public class DocumentCsvExtractor {
 			log.info(String.format("%d/%d dfs rows extracted successfully", successfulRows, totalRows));
 
 		} catch (Throwable throwable) {
-			log.error("Error while dfs extracting rows", throwable);
+			log.error("Error while extracting dfs rows", throwable);
 		}
 
 		return dfsCsvRows.stream()
@@ -119,7 +122,7 @@ public class DocumentCsvExtractor {
 					totalRows++;
 					successfulRows++;
 				} catch (Throwable throwable) {
-					log.warn(String.format("Row [%d] will be skipped - %s", totalRows, throwable.getMessage()));
+					log.warn(String.format("SD Row [%d] will be skipped - %s", totalRows, throwable.getMessage()));
 					totalRows++;
 				}
 			}
@@ -127,7 +130,7 @@ public class DocumentCsvExtractor {
 			log.info(String.format("%d/%d sd rows extracted successfully", successfulRows, totalRows));
 
 		} catch (Throwable throwable) {
-			log.error("Error while sd extracting rows", throwable);
+			log.error("Error while extracting sd rows", throwable);
 		}
 
 		return sdCsvRows.stream()
@@ -142,5 +145,42 @@ public class DocumentCsvExtractor {
 					return sdCsv;
 				})
 				.collect(Collectors.toList());
+	}
+
+	public List<String> extractNixieCoaRows(File nixieCoaFile) {
+
+		log.info("Extracting sd rows");
+
+		List<String> nixieRows = new ArrayList<>();
+
+		try {
+
+			Long totalRows = 0L;
+			Long successfulRows = 0L;
+
+			Scanner scan = new Scanner(nixieCoaFile);
+
+			while(scan.hasNextLine()){
+				try {
+					String line = scan.nextLine();
+					nixieRows.add(line);
+
+					totalRows++;
+					successfulRows++;
+				} catch (Throwable throwable) {
+					log.warn(String.format("Nixie Row [%d] will be skipped - %s", totalRows, throwable.getMessage()));
+					totalRows++;
+				}
+			}
+
+			log.info(String.format("%d/%d nixie rows extracted successfully", successfulRows, totalRows));
+
+
+		} catch (Throwable throwable) {
+			log.error("Error while extracting nixie coa rows", throwable);
+		}
+
+		return nixieRows;
+
 	}
 }
