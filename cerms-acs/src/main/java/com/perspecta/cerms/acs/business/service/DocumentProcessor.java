@@ -10,14 +10,15 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDateString;
+import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDateWithTimeString;
 
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -66,11 +67,12 @@ public class DocumentProcessor {
 					.filter(entry -> BooleanUtils.isFalse(entry.getValue()))
 					.map(Map.Entry::getKey)
 					.collect(Collectors.toList());
-
-			String emailBody = applicationHTMLCreator.withTemplate(TEMPLATE).process();
-			applicationEmailSender.sendEmail(errorFiles, emailBody);
+			if(!CollectionUtils.isEmpty(errorFiles)) {
+				String emailBody = applicationHTMLCreator.withTemplate(TEMPLATE).process();
+				applicationEmailSender.sendEmail(errorFiles, emailBody);
+			}
 		} catch (Exception ex) {
-			log.error("Error while sending the file error email. " + ex);
+			log.error("Error while sending the file log email. " + ex);
 		}
 	}
 
@@ -82,7 +84,7 @@ public class DocumentProcessor {
 				String sourcePath = documentResource.getSourceFolderPath() + PATH_DELIMITER + file.getName();
 				String fileName = FilenameUtils.getBaseName(file.getName());
 				String fileExtension = FilenameUtils.getExtension(file.getName());
-				String processedFileName = fileName + "_" + getCurrentDateString() + "." + fileExtension;
+				String processedFileName = fileName + "_" + getCurrentDateWithTimeString() + "." + fileExtension;
 				String filePath;
 				if(BooleanUtils.isTrue(isSuccessfullyProcessed)) {
 					filePath = documentResource.getSuccessDestinationFolderPath()+ PATH_DELIMITER + processedFileName;

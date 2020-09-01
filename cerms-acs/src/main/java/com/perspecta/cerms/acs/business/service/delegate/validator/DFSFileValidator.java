@@ -2,7 +2,7 @@ package com.perspecta.cerms.acs.business.service.delegate.validator;
 
 import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
 import com.perspecta.cerms.acs.business.domain.dfs.CermsAcsRepository;
-import com.perspecta.cerms.acs.business.domain.error.FileProcessLog;
+import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.dto.DFSCsvRow;
 import com.perspecta.cerms.acs.business.service.dto.constant.FileProcessErrorMessage;
 import io.micrometer.core.instrument.util.StringUtils;
@@ -34,7 +34,7 @@ public class DFSFileValidator {
 
 	public void validate(String fileName, List<DFSCsvRow> dfsCsvRows, List<FileProcessLog> fileProcessLogs) {
 
-		AtomicInteger integer = new AtomicInteger(0);
+		AtomicInteger integer = new AtomicInteger(1);
 
 		dfsCsvRows.stream()
 				.forEach(dfsCsvRow -> {
@@ -61,6 +61,7 @@ public class DFSFileValidator {
 		}
 
 		if(StringUtils.isBlank(dfsCsvRow.getCaseNumber())) {
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, CASE_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -69,6 +70,7 @@ public class DFSFileValidator {
 		}
 
 		if(StringUtils.isBlank(dfsCsvRow.getMailDate())) {
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, MAIL_DATE));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -83,6 +85,7 @@ public class DFSFileValidator {
 
 		if(Objects.nonNull(cermsAcs)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.DUPLICATE_FIELD.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLogs.add(fileProcessLog);
@@ -99,6 +102,7 @@ public class DFSFileValidator {
 			date = sdf.parse(dfsCsvRow.getMailDate());
 			if (!dfsCsvRow.getMailDate().equals(sdf.format(date))) {
 				FileProcessLog fileProcessLog = new FileProcessLog();
+				fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 				fileProcessLog.setFileName(fileName);
 				fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, MAIL_DATE));
 				fileProcessLogs.add(fileProcessLog);
@@ -111,5 +115,10 @@ public class DFSFileValidator {
 		}
 
 		dfsCsvRow.setValid(validFormat);
+	}
+
+	private long parseSerialNumber(String serialNumber) {
+		return Long.parseLong(serialNumber.replaceAll(
+				"[^a-zA-Z0-9]", ""));
 	}
 }

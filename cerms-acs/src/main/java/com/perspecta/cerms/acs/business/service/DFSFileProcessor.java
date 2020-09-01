@@ -1,7 +1,7 @@
 package com.perspecta.cerms.acs.business.service;
 
 import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
-import com.perspecta.cerms.acs.business.domain.error.FileProcessLog;
+import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.delegate.converter.CermsAcsConverter;
 import com.perspecta.cerms.acs.business.service.delegate.persister.DataPersister;
 import com.perspecta.cerms.acs.business.service.delegate.validator.DFSFileValidator;

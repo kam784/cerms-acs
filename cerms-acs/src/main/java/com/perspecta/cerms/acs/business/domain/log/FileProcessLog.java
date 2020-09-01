@@ -1,14 +1,12 @@
-package com.perspecta.cerms.acs.business.domain.error;
+package com.perspecta.cerms.acs.business.domain.log;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
+@Table(name = "CERMSACS_Log")
 @Entity
 public class FileProcessLog {
 
@@ -17,6 +15,7 @@ public class FileProcessLog {
 	@Column(name = "fileProcessLogId")
 	private long id;
 
+	private Long serialNumber;
 	private String fileName;
 	private String comment;
 	private Date processedDate;

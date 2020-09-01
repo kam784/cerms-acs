@@ -33,9 +33,10 @@ public class ApplicationEmailSender {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
 				MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-				mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress("rosheena.khan@gmail.com"));
-				mimeMessage.setSubject("File Process Error Report");
-				mimeMessage.setText(message);
+				helper.setFrom("khurram.sultan@uspsector.com");
+				helper.setTo(new InternetAddress("khurram.sultan@uspsector.com"));
+				helper.setSubject("File Process Error Report");
+				helper.setText(message, true);
 
 				errorFiles.forEach(file -> {
 					try {

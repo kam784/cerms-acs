@@ -2,8 +2,8 @@ package com.perspecta.cerms.acs.business.service.delegate.persister;
 
 import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
 import com.perspecta.cerms.acs.business.domain.dfs.CermsAcsRepository;
-import com.perspecta.cerms.acs.business.domain.error.FileProcessLog;
-import com.perspecta.cerms.acs.business.domain.error.FileProcessLogRepository;
+import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
+import com.perspecta.cerms.acs.business.domain.log.FileProcessLogRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

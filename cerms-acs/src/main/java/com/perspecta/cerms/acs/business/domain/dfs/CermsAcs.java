@@ -6,14 +6,14 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Data
-@Table(name = "Acs")
+@Table(name = "CERMSACS")
 @Entity
 public class CermsAcs {
 
 	@Id
 	@GeneratedValue
-	@Column(name = "acsId")
-	private long id;
+	@Column(name = "cermsAcsId")
+	private int id;
 
 	private long serialNumber;
 	private String caseNumber;
@@ -22,4 +22,6 @@ public class CermsAcs {
 	private Date destructionDate;
 	private Date returnDate;
 	private String coaInfo;
+	private Date addDate;
+	private Date updateDate;
 }

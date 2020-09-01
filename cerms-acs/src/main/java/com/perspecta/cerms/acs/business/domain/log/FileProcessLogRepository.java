@@ -1,4 +1,4 @@
-package com.perspecta.cerms.acs.business.domain.error;
+package com.perspecta.cerms.acs.business.domain.log;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

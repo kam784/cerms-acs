@@ -2,11 +2,19 @@ spring:
   application:
     name: cerms-acs
 
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/cerms_acs
+#    driver-class-name: com.mysql.jdbc.Driver
+#    username: wheelsupuser
+#    password: WHEELSUP@!!2013
+#    testWhileIdle: true
+#    validationQuery: SELECT 1
+
   datasource:
-    url: jdbc:mysql://localhost:3306/cerms_acs
-    driver-class-name: com.mysql.jdbc.Driver
-    username: wheelsupuser
-    password: WHEELSUP@!!2013
+    url: jdbc:sqlserver://USTLCSCSD0046.cosd.co.san-diego.ca.us:1456;databaseName=IAStatisticsDB
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: SVC_PA2563_APPS_T
+    password: Captiva793Test*
     testWhileIdle: true
     validationQuery: SELECT 1
 
@@ -25,7 +33,8 @@ spring:
     hibernate:
       ddl-auto: none
       use-new-id-generator-mappings: false
-      dialect: org.hibernate.dialect.MySQL5Dialect
+      #dialect: org.hibernate.dialect.MySQL5Dialect
+      dialect: org.hibernate.dialect.SQLServer2012Dialect
       naming-strategy: org.hibernate.cfg.EJB3NamingStrategy
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
@@ -35,7 +44,8 @@ spring:
         usertype:
           autoRegisterUserTypes: true
       hibernate:
-        dialect: org.hibernate.dialect.MySQL5Dialect
+        #dialect: org.hibernate.dialect.MySQL5Dialect
+        dialect: org.hibernate.dialect.SQLServer2012Dialect
         cache:
           use_second_level_cache: false8447
           use_query_cache: false
@@ -44,10 +54,8 @@ spring:
         format_sql: true
 
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: rosheena.khan@gmail.com
-    password: Floatzone786!
+    host: mail.sdcounty.ca.gov
+    port: 25
 
   # Other properties
     properties:
@@ -80,7 +88,7 @@ cerms:
 
     folder:
       path:
-        source: 'C:\personal\acsFiles'
+        source: 'C:\temp\acsFiles'
         destination:
-          success: 'C:\personal\processedFiles'
-          failure: 'C:\personal\failedFiles'
+          success: 'C:\temp\acsProcessedFiles'
+          failure: 'C:\temp\acsFailedFiles'

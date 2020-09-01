@@ -2,7 +2,7 @@ package com.perspecta.cerms.acs.business.service.delegate.validator;
 
 import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
 import com.perspecta.cerms.acs.business.domain.dfs.CermsAcsRepository;
-import com.perspecta.cerms.acs.business.domain.error.FileProcessLog;
+import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.dto.SDCsvRow;
 import com.perspecta.cerms.acs.business.service.dto.constant.FileProcessErrorMessage;
 import io.micrometer.core.instrument.util.StringUtils;
@@ -68,6 +68,7 @@ public class SDValidator {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 
 		if (StringUtils.isBlank(sdCsvRow.getCountyId())) {
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COUNTY_ID));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -76,6 +77,7 @@ public class SDValidator {
 		}
 
 		if (StringUtils.isBlank(sdCsvRow.getRawSerialNumber())) {
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -84,6 +86,7 @@ public class SDValidator {
 		}
 
 		if (StringUtils.isBlank(sdCsvRow.getDestructionDate())) {
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SCAN_DATE));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -111,6 +114,7 @@ public class SDValidator {
 
 		if (Objects.isNull(cermsAcs)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.SERIAL_NUMBER_NOT_PRESENT.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -121,6 +125,7 @@ public class SDValidator {
 
 		if (!sdCsvRow.getCountyId().equals(COUNTY_ID_VALUE)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_COUNTY_ID.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -137,6 +142,7 @@ public class SDValidator {
 			date = sdf.parse(sdCsvRow.getDestructionDate());
 			if (!sdCsvRow.getDestructionDate().equals(sdf.format(date))) {
 				FileProcessLog fileProcessLog = new FileProcessLog();
+				fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
 				fileProcessLog.setFileName(fileName);
 				fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, SCAN_DATE));
 				fileProcessLog.setProcessedDate(getCurrentDate());
@@ -170,5 +176,10 @@ public class SDValidator {
 		if(StringUtils.isNotBlank(sdCsvRow.getRawSerialNumber())) {
 			sdCsvRow.setRawSerialNumber(sdCsvRow.getRawSerialNumber().replaceAll("[^a-zA-Z0-9]", ""));
 		}
+	}
+
+	private Long getSerialNumber(String rawSerialNumber) {
+		return Long.parseLong(rawSerialNumber.replaceAll(
+				"[^a-zA-Z0-9]", "").substring(rawSerialNumber.length() - 9));
 	}
 }
