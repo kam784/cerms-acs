@@ -1,7 +1,7 @@
 package com.perspecta.cerms.acs.business.service.delegate.validator;
 
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcsRepository;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcs;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcsRepository;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.dto.DFSCsvRow;
 import com.perspecta.cerms.acs.business.service.dto.constant.FileProcessErrorMessage;
@@ -50,29 +50,32 @@ public class DFSFileValidator {
 	}
 
 	private void checkForEmptyFields(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer){
-		FileProcessLog fileProcessLog = new FileProcessLog();
+		FileProcessLog fileProcessLog;
 
 		if(StringUtils.isBlank(dfsCsvRow.getSerialNumber())) {
+			fileProcessLog = new FileProcessLog();
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			dfsCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
 		}
 
 		if(StringUtils.isBlank(dfsCsvRow.getCaseNumber())) {
+			fileProcessLog = new FileProcessLog();
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, CASE_NUMBER));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, CASE_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			dfsCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
 		}
 
 		if(StringUtils.isBlank(dfsCsvRow.getMailDate())) {
+			fileProcessLog = new FileProcessLog();
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, MAIL_DATE));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, MAIL_DATE));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			dfsCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
@@ -87,7 +90,7 @@ public class DFSFileValidator {
 			FileProcessLog fileProcessLog = new FileProcessLog();
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.DUPLICATE_FIELD.getMessage(), integer, SERIAL_NUMBER));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.DUPLICATE_FIELD.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLogs.add(fileProcessLog);
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			dfsCsvRow.setValid(false);
@@ -104,7 +107,7 @@ public class DFSFileValidator {
 				FileProcessLog fileProcessLog = new FileProcessLog();
 				fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber())? null: parseSerialNumber(dfsCsvRow.getSerialNumber()));
 				fileProcessLog.setFileName(fileName);
-				fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, MAIL_DATE));
+				fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, MAIL_DATE));
 				fileProcessLogs.add(fileProcessLog);
 				fileProcessLog.setProcessedDate(getCurrentDate());
 				validFormat = false;

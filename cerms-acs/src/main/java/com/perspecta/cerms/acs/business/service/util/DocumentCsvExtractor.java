@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.perspecta.cerms.acs.business.domain.nixie.NixieCOA;
 import com.perspecta.cerms.acs.business.service.dto.DFSCsvRow;
+import com.perspecta.cerms.acs.business.service.dto.NixieCOARow;
 import com.perspecta.cerms.acs.business.service.dto.SDCsvRow;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 
@@ -147,11 +150,11 @@ public class DocumentCsvExtractor {
 				.collect(Collectors.toList());
 	}
 
-	public List<String> extractNixieCoaRows(File nixieCoaFile) {
+	public List<NixieCOARow> extractNixieCoaRows(File nixieCoaFile) {
 
-		log.info("Extracting sd rows");
+		log.info("Extracting nixie coa rows");
 
-		List<String> nixieRows = new ArrayList<>();
+		List<NixieCOARow> nixieCOARows = new ArrayList<>();
 
 		try {
 
@@ -163,10 +166,12 @@ public class DocumentCsvExtractor {
 			while(scan.hasNextLine()){
 				try {
 					String line = scan.nextLine();
-					nixieRows.add(line);
+					if (line.charAt(0) == 'H' || line.charAt(0) == 'D') {
+						nixieCOARows.add(parseNixieCOARecord(line));
+						totalRows++;
+						successfulRows++;
+					}
 
-					totalRows++;
-					successfulRows++;
 				} catch (Throwable throwable) {
 					log.warn(String.format("Nixie Row [%d] will be skipped - %s", totalRows, throwable.getMessage()));
 					totalRows++;
@@ -180,7 +185,27 @@ public class DocumentCsvExtractor {
 			log.error("Error while extracting nixie coa rows", throwable);
 		}
 
-		return nixieRows;
+		return nixieCOARows;
+	}
+
+	private NixieCOARow parseNixieCOARecord(String record) {
+		return NixieCOARow.builder()
+				.recordHeaderCode(record.substring(0,1))
+				.responseDate(record.charAt(0) == 'H'? record.substring(9,17): null)
+				.deliverabilityCode(record.charAt(0) == 'D'? record.substring(45,46):null)
+				.countyId(record.charAt(0) == 'D'? record.substring(11,17): null)
+				.serialNumber(record.charAt(0) == 'D'? record.substring(20,29):null)
+				.changeOfAddress((record.charAt(0) == 'D' && StringUtils.isBlank(record.substring(45,46)))? parseChangeOfAddress(record):null)
+				.build();
+	}
+
+	private String parseChangeOfAddress(String record) {
+		return String.format("%s, %s, %s %s-%s",
+				record.substring(373, 438).trim(),
+				record.substring(317, 345).trim(),
+				record.substring(345, 347).trim(),
+				record.substring(347, 352).trim(),
+				record.substring(354, 359).trim());
 
 	}
 }

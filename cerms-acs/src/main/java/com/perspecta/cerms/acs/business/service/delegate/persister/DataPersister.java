@@ -1,7 +1,7 @@
 package com.perspecta.cerms.acs.business.service.delegate.persister;
 
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcsRepository;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcs;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcsRepository;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLogRepository;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package com.perspecta.cerms.acs.business.service.delegate.validator;
 
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcsRepository;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcs;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcsRepository;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.dto.SDCsvRow;
 import com.perspecta.cerms.acs.business.service.dto.constant.FileProcessErrorMessage;
@@ -31,31 +31,30 @@ public class SDValidator {
 	private static final String SERIAL_NUMBER = "Serial";
 	private static final String SCAN_DATE = "ScanDate";
 	private static final String DATE_FORMAT = "MM/dd/yyyy";
-	private static final String COUNTY_ID_VALUE = "202010";
+	private static final Long COUNTY_ID_VALUE = 202010L;
 
 	private final CermsAcsRepository cermsAcsRepository;
 
 	public void validate(String fileName, List<SDCsvRow> sdCsvRows, List<FileProcessLog> fileProcessLogs) {
 
-		AtomicInteger integer = new AtomicInteger(0);
+		AtomicInteger integer = new AtomicInteger(1);
 
 		if (CollectionUtils.isNotEmpty(sdCsvRows) &&
 				StringUtils.isNotBlank(sdCsvRows.get(0).getCode()) &&
-				sdCsvRows.get(0).getCode().equals("H")) {
+				sdCsvRows.get(0).getCode().equalsIgnoreCase("H")) {
 
 			sdCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isTrue(dfsCsvRow.getCode().equals("H")));
 
-			sdCsvRows.stream()
-					.forEach(sdCsvRow -> {
-						Integer rowNumber = integer.getAndIncrement();
+			sdCsvRows.forEach(sdCsvRow -> {
+				Integer rowNumber = integer.getAndIncrement();
 
-						sdCsvRow.setValid(true);
-						parseRawSerialNumber(sdCsvRow);
-						checkForEmptyFields(fileName, sdCsvRow, fileProcessLogs, rowNumber);
-						checkForErroneousFields(fileName, sdCsvRow, fileProcessLogs, rowNumber);
-						checkForMailDateFormat(fileName, sdCsvRow, fileProcessLogs, rowNumber);
+				sdCsvRow.setValid(true);
+				parseRawSerialNumber(sdCsvRow);
+				checkForEmptyFields(fileName, sdCsvRow, fileProcessLogs, rowNumber);
+				checkForErroneousFields(fileName, sdCsvRow, fileProcessLogs, rowNumber);
+				checkForMailDateFormat(fileName, sdCsvRow, fileProcessLogs, rowNumber);
 
-					});
+			});
 
 			sdCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isFalse(dfsCsvRow.isValid()));
 		} else {
@@ -65,30 +64,33 @@ public class SDValidator {
 	}
 
 	private void checkForEmptyFields(String fileName, SDCsvRow sdCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer) {
-		FileProcessLog fileProcessLog = new FileProcessLog();
+		FileProcessLog fileProcessLog;
 
 		if (StringUtils.isBlank(sdCsvRow.getCountyId())) {
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
+			fileProcessLog = new FileProcessLog();
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COUNTY_ID));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COUNTY_ID));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			sdCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
 		}
 
 		if (StringUtils.isBlank(sdCsvRow.getRawSerialNumber())) {
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
+			fileProcessLog = new FileProcessLog();
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			sdCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
 		}
 
 		if (StringUtils.isBlank(sdCsvRow.getDestructionDate())) {
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
+			fileProcessLog = new FileProcessLog();
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SCAN_DATE));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SCAN_DATE));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			sdCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
@@ -98,7 +100,7 @@ public class SDValidator {
 	private void logInvalidFile(String fileName, List<FileProcessLog> fileProcessLogs) {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 		fileProcessLog.setFileName(fileName);
-		fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_FILE.getMessage(), fileName));
+		fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_FILE.getMessage(), fileName));
 		fileProcessLog.setProcessedDate(getCurrentDate());
 		fileProcessLogs.add(fileProcessLog);
 	}
@@ -114,20 +116,20 @@ public class SDValidator {
 
 		if (Objects.isNull(cermsAcs)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.SERIAL_NUMBER_NOT_PRESENT.getMessage(), integer, SERIAL_NUMBER));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.SERIAL_NUMBER_NOT_PRESENT.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
 			sdCsvRow.setValid(false);
 		}
 
 
-		if (!sdCsvRow.getCountyId().equals(COUNTY_ID_VALUE)) {
+		if (!Long.valueOf(sdCsvRow.getCountyId()).equals(COUNTY_ID_VALUE)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_COUNTY_ID.getMessage(), integer, SERIAL_NUMBER));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_COUNTY_ID.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
 			sdCsvRow.setValid(false);
@@ -142,9 +144,9 @@ public class SDValidator {
 			date = sdf.parse(sdCsvRow.getDestructionDate());
 			if (!sdCsvRow.getDestructionDate().equals(sdf.format(date))) {
 				FileProcessLog fileProcessLog = new FileProcessLog();
-				fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber())? null: getSerialNumber(sdCsvRow.getRawSerialNumber()));
+				fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 				fileProcessLog.setFileName(fileName);
-				fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, SCAN_DATE));
+				fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, SCAN_DATE));
 				fileProcessLog.setProcessedDate(getCurrentDate());
 				fileProcessLogs.add(fileProcessLog);
 				validFormat = false;
@@ -165,7 +167,7 @@ public class SDValidator {
 
 			FileProcessLog fileProcessLog = new FileProcessLog();
 			fileProcessLog.setFileName(fileName);
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.INVALID_FORMAT.getMessage(), integer, SERIAL_NUMBER));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_FORMAT.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
 			sdCsvRow.setValid(false);
@@ -173,7 +175,7 @@ public class SDValidator {
 	}
 
 	private void parseRawSerialNumber(SDCsvRow sdCsvRow) {
-		if(StringUtils.isNotBlank(sdCsvRow.getRawSerialNumber())) {
+		if (StringUtils.isNotBlank(sdCsvRow.getRawSerialNumber())) {
 			sdCsvRow.setRawSerialNumber(sdCsvRow.getRawSerialNumber().replaceAll("[^a-zA-Z0-9]", ""));
 		}
 	}

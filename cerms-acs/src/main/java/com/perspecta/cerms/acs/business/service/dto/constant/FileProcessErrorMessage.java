@@ -9,6 +9,7 @@ public enum FileProcessErrorMessage {
 	DUPLICATE_FIELD("Line %s field %s is a duplicate."),
 	INVALID_MAIL_DATE("Line %s %s has invalid format."),
 	INVALID_FILE("Invalid file %s, missing header record."),
+	INVALID_FILE_RESPONSEDATE("Invalid file %s, header record does not have response date."),
 	INVALID_COUNTY_ID("Line %s field %s is invalid."),
 	INVALID_FORMAT("Line %s field %s has invalid format."),
 	SERIAL_NUMBER_NOT_PRESENT("Line %s field %s, no record matched the serial number."),

@@ -1,4 +1,4 @@
-package com.perspecta.cerms.acs.business.domain.dfs;
+package com.perspecta.cerms.acs.business.domain.cerms_acs;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,6 @@
 package com.perspecta.cerms.acs.business.service;
 
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcs;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.delegate.converter.CermsAcsConverter;
 import com.perspecta.cerms.acs.business.service.delegate.persister.DataPersister;

@@ -1,7 +1,7 @@
 package com.perspecta.cerms.acs.business.service.delegate.converter;
 
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcs;
-import com.perspecta.cerms.acs.business.domain.dfs.CermsAcsRepository;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcs;
+import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcsRepository;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.dto.DFSCsvRow;
 import com.perspecta.cerms.acs.business.service.dto.SDCsvRow;
@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -70,9 +69,11 @@ public class CermsAcsConverter {
 		fileProcessLog.setProcessedDate(getCurrentDate());
 
 		if(CollectionUtils.isNotEmpty(fileProcessLogs)) {
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.FILE_PROCESS_ERROR_MESSAGE.getMessage(), fileName, fileProcessLogs.size()));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.FILE_PROCESS_ERROR_MESSAGE.getMessage(), fileName, fileProcessLogs.size()));
+			fileProcessLog.setLogStatus(FileProcessLog.LogStatus.FAILED);
 		} else {
-			fileProcessLog.setComment(String.format(FileProcessErrorMessage.FILE_PROCESS_SUCCESS_MESSAGE.getMessage(), fileName));
+			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.FILE_PROCESS_SUCCESS_MESSAGE.getMessage(), fileName));
+			fileProcessLog.setLogStatus(FileProcessLog.LogStatus.SUCCESS);
 		}
 
 		fileProcessLogs.add(fileProcessLog);

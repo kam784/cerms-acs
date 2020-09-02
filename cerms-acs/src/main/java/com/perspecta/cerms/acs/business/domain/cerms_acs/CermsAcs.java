@@ -1,4 +1,4 @@
-package com.perspecta.cerms.acs.business.domain.dfs;
+package com.perspecta.cerms.acs.business.domain.cerms_acs;
 
 import lombok.Data;
 
@@ -20,8 +20,10 @@ public class CermsAcs {
 	private long docTypeId;
 	private Date mailDate;
 	private Date destructionDate;
-	private Date returnDate;
+	private Date responseDate;
+	private String deliverabilityCode;
 	private String coaInfo;
 	private Date addDate;
 	private Date updateDate;
+	private Date cermsNotificationDate;
 }
