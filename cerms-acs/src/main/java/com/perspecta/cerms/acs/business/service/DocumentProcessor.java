@@ -7,12 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,7 @@ public class DocumentProcessor {
 	private static final String TEMPLATE = "FileProcessError";
 
 	private final DFSFileProcessor dfsFileProcessor;
-	private final NixieCOAFileProcessor nixieCOAFileProcessor;
+	private final NixieCoaFileProcessor nixieCoaFileProcessor;
 	private final SDFileProcessor sdFileProcessor;
 	private final ApplicationHTMLCreator applicationHTMLCreator;
 	private final ApplicationEmailSender applicationEmailSender;
@@ -43,21 +45,46 @@ public class DocumentProcessor {
 
 		File[] acsFiles = folder.listFiles();
 
-		for(File file: acsFiles) {
-			// P stands for NixieFile
-			if(file.getName().startsWith("P")) {
-				processedFileMap.put(file, nixieCOAFileProcessor.processNixieCOAFile(file));
-			} else if(file.getName().startsWith("D")) {
-				processedFileMap.put(file, sdFileProcessor.processSDFile(file));
-			} else {
-				processedFileMap.put(file, dfsFileProcessor.processDFSFile(file));
-			}
+		List<File> dfsFiles = new ArrayList<>();
+		List<File> nixieCoaFiles = new ArrayList<>();
+		List<File> sdFiles = new ArrayList<>();
+
+		if(ArrayUtils.isNotEmpty(acsFiles)) {
+			organizeFiles(acsFiles, dfsFiles, nixieCoaFiles, sdFiles);
+
+			processFiles(processedFileMap, dfsFiles, nixieCoaFiles, sdFiles);
+
+			sendErrorEmail(processedFileMap);
+
+			//	moveProcessedFiles(processedFileMap);
 		}
 
-		sendErrorEmail(processedFileMap);
+	}
 
-	//	moveProcessedFiles(processedFileMap);
+	private void processFiles(Map<File, Boolean> processedFileMap, List<File> dfsFiles, List<File> nixieCoaFiles, List<File> sdFiles) {
+		dfsFiles.forEach(dfsFile -> {
+			processedFileMap.put(dfsFile, dfsFileProcessor.processDFSFile(dfsFile));
+		});
 
+		nixieCoaFiles.forEach(nixieCoaFile -> {
+			processedFileMap.put(nixieCoaFile, nixieCoaFileProcessor.processNixieCoaFile(nixieCoaFile));
+		});
+
+		sdFiles.forEach(sdFile -> {
+			processedFileMap.put(sdFile, sdFileProcessor.processSDFile(sdFile));
+		});
+	}
+
+	private void organizeFiles(File[] acsFiles, List<File> dfsFiles, List<File> nixieCoaFiles, List<File> sdFiles) {
+		for(File file: acsFiles) {
+			if(file.getName().startsWith("D")) {
+				sdFiles.add(file);
+			} else if (file.getName().startsWith("P")) {
+				nixieCoaFiles.add(file);
+			} else {
+				dfsFiles.add(file);
+			}
+		}
 	}
 
 	private void sendErrorEmail(Map<File, Boolean> processedFileMap) {

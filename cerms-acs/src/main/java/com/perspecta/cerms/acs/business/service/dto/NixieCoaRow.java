@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class NixieCOARow {
+public class NixieCoaRow {
 
 	private String recordHeaderCode;
 	private String deliverabilityCode;
@@ -15,5 +15,6 @@ public class NixieCOARow {
 	private String countyId;
 	private String serialNumber;
 	private String changeOfAddress;
+	private boolean valid;
 
 }

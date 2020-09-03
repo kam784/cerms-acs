@@ -3,7 +3,7 @@ package com.perspecta.cerms.acs.business.service.delegate.validator;
 import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcs;
 import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcsRepository;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
-import com.perspecta.cerms.acs.business.service.dto.NixieCOARow;
+import com.perspecta.cerms.acs.business.service.dto.NixieCoaRow;
 import com.perspecta.cerms.acs.business.service.dto.constant.FileProcessErrorMessage;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrent
 @Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @Slf4j
-public class NixieCOAValidator {
+public class NixieCoaValidator {
 
 	private static final String COUNTY_ID = "CountyId";
 	private static final String SERIAL_NUMBER = "SerialNumber";
@@ -30,35 +30,38 @@ public class NixieCOAValidator {
 
 	private final CermsAcsRepository cermsAcsRepository;
 
-	public void validate(String fileName, List<NixieCOARow> nixieCOARows, List<FileProcessLog> fileProcessLogs) {
+	public void validate(String fileName, List<NixieCoaRow> nixieCoaRows, List<FileProcessLog> fileProcessLogs) {
 
 		AtomicInteger integer = new AtomicInteger(1);
 
-		if (CollectionUtils.isNotEmpty(nixieCOARows) &&
-				StringUtils.isNotBlank(nixieCOARows.get(0).getRecordHeaderCode()) &&
-				nixieCOARows.get(0).getRecordHeaderCode().equalsIgnoreCase("H") &&
-				StringUtils.isNotBlank(nixieCOARows.get(0).getResponseDate())) {
+		if (CollectionUtils.isNotEmpty(nixieCoaRows) &&
+				StringUtils.isNotBlank(nixieCoaRows.get(0).getRecordHeaderCode()) &&
+				nixieCoaRows.get(0).getRecordHeaderCode().equalsIgnoreCase("H") &&
+				StringUtils.isNotBlank(nixieCoaRows.get(0).getResponseDate())) {
 
-			nixieCOARows.forEach(nixieCOARow -> {
+			nixieCoaRows.forEach(nixieCoaRow -> {
 				Integer rowNumber = integer.getAndIncrement();
-				checkForEmptyFields(fileName, nixieCOARow, fileProcessLogs, rowNumber);
-				checkForErroneousFields(fileName, nixieCOARow, fileProcessLogs, rowNumber);
+				if(!nixieCoaRow.getRecordHeaderCode().equalsIgnoreCase("H")) {
+					nixieCoaRow.setValid(true);
+					checkForEmptyFields(fileName, nixieCoaRow, fileProcessLogs, rowNumber);
+					checkForErroneousFields(fileName, nixieCoaRow, fileProcessLogs, rowNumber);
+				}
 			});
 
 		} else {
 
-			if(StringUtils.isBlank(nixieCOARows.get(0).getRecordHeaderCode()) &&
-					!nixieCOARows.get(0).getRecordHeaderCode().equalsIgnoreCase("H")) {
+			if(StringUtils.isBlank(nixieCoaRows.get(0).getRecordHeaderCode()) &&
+					!nixieCoaRows.get(0).getRecordHeaderCode().equalsIgnoreCase("H")) {
 				logInvalidFile(fileName, fileProcessLogs);
 			}
 
-			if(StringUtils.isBlank(nixieCOARows.get(0).getResponseDate())) {
+			if(StringUtils.isBlank(nixieCoaRows.get(0).getResponseDate())) {
 				logInvalidFileMissingResponseDate(fileName, fileProcessLogs);
 			}
 		}
 	}
 
-	private void checkForEmptyFields(String fileName, NixieCOARow nixieCOARow, List<FileProcessLog> fileProcessLogs, Integer integer) {
+	private void checkForEmptyFields(String fileName, NixieCoaRow nixieCOARow, List<FileProcessLog> fileProcessLogs, Integer integer) {
 		FileProcessLog fileProcessLog;
 
 		if (StringUtils.isBlank(nixieCOARow.getSerialNumber())) {
@@ -68,6 +71,7 @@ public class NixieCOAValidator {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
+			nixieCOARow.setValid(false);
 		}
 
 		if (StringUtils.isBlank(nixieCOARow.getCountyId())) {
@@ -77,6 +81,7 @@ public class NixieCOAValidator {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COUNTY_ID));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
+			nixieCOARow.setValid(false);
 		}
 
 		if(StringUtils.isBlank(nixieCOARow.getDeliverabilityCode()) && StringUtils.isBlank(nixieCOARow.getChangeOfAddress())) {
@@ -86,10 +91,11 @@ public class NixieCOAValidator {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COA));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
+			nixieCOARow.setValid(false);
 		}
 	}
 
-	private void checkForErroneousFields(String fileName, NixieCOARow nixieCOARow, List<FileProcessLog> fileProcessLogs, Integer integer) {
+	private void checkForErroneousFields(String fileName, NixieCoaRow nixieCOARow, List<FileProcessLog> fileProcessLogs, Integer integer) {
 
 		Long serialNumber = Long.parseLong(nixieCOARow.getSerialNumber().replaceAll(
 				"[^a-zA-Z0-9]", ""));
@@ -103,6 +109,7 @@ public class NixieCOAValidator {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.SERIAL_NUMBER_NOT_PRESENT.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
+			nixieCOARow.setValid(false);
 		}
 
 
@@ -113,6 +120,7 @@ public class NixieCOAValidator {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_COUNTY_ID.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
 			fileProcessLogs.add(fileProcessLog);
+			nixieCOARow.setValid(false);
 		}
 	}
 

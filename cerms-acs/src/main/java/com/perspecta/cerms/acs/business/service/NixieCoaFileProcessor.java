@@ -4,8 +4,8 @@ import com.perspecta.cerms.acs.business.domain.cerms_acs.CermsAcs;
 import com.perspecta.cerms.acs.business.domain.log.FileProcessLog;
 import com.perspecta.cerms.acs.business.service.delegate.converter.CermsAcsConverter;
 import com.perspecta.cerms.acs.business.service.delegate.persister.DataPersister;
-import com.perspecta.cerms.acs.business.service.delegate.validator.NixieCOAValidator;
-import com.perspecta.cerms.acs.business.service.dto.NixieCOARow;
+import com.perspecta.cerms.acs.business.service.delegate.validator.NixieCoaValidator;
+import com.perspecta.cerms.acs.business.service.dto.NixieCoaRow;
 import com.perspecta.cerms.acs.business.service.util.DocumentCsvExtractor;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,28 +20,26 @@ import java.util.List;
 @Service
 @AllArgsConstructor(onConstructor = @__(@Autowired))
 @Slf4j
-public class NixieCOAFileProcessor {
+public class NixieCoaFileProcessor {
 
 	private final DocumentCsvExtractor documentCsvExtractor;
-	private final NixieCOAValidator nixieCOAValidator;
+	private final NixieCoaValidator nixieCoaValidator;
 	private final CermsAcsConverter cermsAcsConverter;
 	private final DataPersister dataPersister;
 
-	public boolean processNixieCOAFile(File nixieFile) {
+	public boolean processNixieCoaFile(File nixieCoaFile) {
 
 		List<FileProcessLog> fileProcessLogs = new ArrayList<>();
 		List<CermsAcs> cermsAcsRecords = new ArrayList<>();
 
 		try {
-			List<NixieCOARow> nixieCOARows = documentCsvExtractor.extractNixieCoaRows(nixieFile);
+			List<NixieCoaRow> nixieCoaRows = documentCsvExtractor.extractNixieCoaRows(nixieCoaFile);
 
-			nixieCOAValidator.validate(nixieFile.getName(), nixieCOARows, fileProcessLogs);
+			nixieCoaValidator.validate(nixieCoaFile.getName(), nixieCoaRows, fileProcessLogs);
 
-			if(CollectionUtils.isEmpty(fileProcessLogs)) {
-			//	cermsAcsRecords = cermsAcsConverter.nixieCOAToCermsAcs(nixieCOARows);
-			}
+			cermsAcsRecords = cermsAcsConverter.nixieCoaToCermsAcs(nixieCoaRows);
 
-			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, nixieFile.getName());
+			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, nixieCoaFile.getName());
 
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 

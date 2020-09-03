@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.perspecta.cerms.acs.business.domain.nixie.NixieCOA;
 import com.perspecta.cerms.acs.business.service.dto.DFSCsvRow;
-import com.perspecta.cerms.acs.business.service.dto.NixieCOARow;
+import com.perspecta.cerms.acs.business.service.dto.NixieCoaRow;
 import com.perspecta.cerms.acs.business.service.dto.SDCsvRow;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -150,11 +149,11 @@ public class DocumentCsvExtractor {
 				.collect(Collectors.toList());
 	}
 
-	public List<NixieCOARow> extractNixieCoaRows(File nixieCoaFile) {
+	public List<NixieCoaRow> extractNixieCoaRows(File nixieCoaFile) {
 
 		log.info("Extracting nixie coa rows");
 
-		List<NixieCOARow> nixieCOARows = new ArrayList<>();
+		List<NixieCoaRow> nixieCoaRows = new ArrayList<>();
 
 		try {
 
@@ -167,7 +166,7 @@ public class DocumentCsvExtractor {
 				try {
 					String line = scan.nextLine();
 					if (line.charAt(0) == 'H' || line.charAt(0) == 'D') {
-						nixieCOARows.add(parseNixieCOARecord(line));
+						nixieCoaRows.add(parseNixieCOARecord(line));
 						totalRows++;
 						successfulRows++;
 					}
@@ -185,11 +184,11 @@ public class DocumentCsvExtractor {
 			log.error("Error while extracting nixie coa rows", throwable);
 		}
 
-		return nixieCOARows;
+		return nixieCoaRows;
 	}
 
-	private NixieCOARow parseNixieCOARecord(String record) {
-		return NixieCOARow.builder()
+	private NixieCoaRow parseNixieCOARecord(String record) {
+		return NixieCoaRow.builder()
 				.recordHeaderCode(record.substring(0,1))
 				.responseDate(record.charAt(0) == 'H'? record.substring(9,17): null)
 				.deliverabilityCode(record.charAt(0) == 'D'? record.substring(45,46):null)
