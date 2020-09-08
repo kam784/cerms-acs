@@ -37,7 +37,7 @@ public class CermsAcsConverter {
 		return dfsCsvRows.stream()
 				.map(dfsCsvRow -> {
 					CermsAcs cermsAcs = new CermsAcs();
-					cermsAcs.setSerialNumber(Long.valueOf(dfsCsvRow.getSerialNumber()));
+					cermsAcs.setSerialNumber(dfsCsvRow.getSerialNumber());
 					cermsAcs.setCaseNumber(dfsCsvRow.getCaseNumber());
 					cermsAcs.setDocTypeId(StringUtils.isEmpty(dfsCsvRow.getDocTypeId())? DOCTYPE_ID : Long.valueOf(dfsCsvRow.getDocTypeId()));
 					cermsAcs.setMailDate(parseDateString(dfsCsvRow.getMailDate()));
@@ -51,8 +51,8 @@ public class CermsAcsConverter {
 
 		return sdCsvRows.stream()
 				.map(sdCsvRow -> {
-					long serialNumber = Long.parseLong(sdCsvRow.getRawSerialNumber().replaceAll(
-							"[^a-zA-Z0-9]", "").substring(sdCsvRow.getRawSerialNumber().length() - 9));
+					String serialNumber = sdCsvRow.getRawSerialNumber().replaceAll(
+							"[^a-zA-Z0-9]", "").substring(sdCsvRow.getRawSerialNumber().length() - 9);
 
 					CermsAcs cermsAcs = Optional.ofNullable(cermsAcsRepository.findBySerialNumber(serialNumber)).orElse(null);
 
@@ -83,8 +83,8 @@ public class CermsAcsConverter {
 		return nixieCoaRows.stream()
 				.map(nixieCoaRow -> {
 
-					long serialNumber = Long.parseLong(nixieCoaRow.getSerialNumber().replaceAll(
-							"[^a-zA-Z0-9]", ""));
+					String serialNumber = nixieCoaRow.getSerialNumber().replaceAll(
+							"[^a-zA-Z0-9]", "");
 
 					CermsAcs cermsAcs = Optional.ofNullable(cermsAcsRepository.findBySerialNumber(serialNumber)).orElse(null);
 

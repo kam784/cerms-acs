@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CermsAcsRepository extends JpaRepository<CermsAcs, Long> {
-	CermsAcs findBySerialNumber (long serialNumber);
+	CermsAcs findBySerialNumber (String serialNumber);
 }

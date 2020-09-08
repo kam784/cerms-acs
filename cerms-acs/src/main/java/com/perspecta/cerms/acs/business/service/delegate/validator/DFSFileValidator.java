@@ -84,7 +84,7 @@ public class DFSFileValidator {
 
 	private void checkForDuplicate(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer) {
 
-		CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(Long.valueOf(dfsCsvRow.getSerialNumber()));
+		CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(dfsCsvRow.getSerialNumber());
 
 		if(Objects.nonNull(cermsAcs)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
@@ -120,8 +120,8 @@ public class DFSFileValidator {
 		dfsCsvRow.setValid(validFormat);
 	}
 
-	private long parseSerialNumber(String serialNumber) {
-		return Long.parseLong(serialNumber.replaceAll(
-				"[^a-zA-Z0-9]", ""));
+	private String parseSerialNumber(String serialNumber) {
+		return serialNumber.replaceAll(
+				"[^a-zA-Z0-9]", "");
 	}
 }

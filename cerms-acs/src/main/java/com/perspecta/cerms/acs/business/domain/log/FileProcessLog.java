@@ -20,7 +20,7 @@ public class FileProcessLog {
 	@Column(name = "fileProcessLogId")
 	private long id;
 
-	private Long serialNumber;
+	private String serialNumber;
 	private String fileName;
 	private String logEntry;
 	private Date processedDate;

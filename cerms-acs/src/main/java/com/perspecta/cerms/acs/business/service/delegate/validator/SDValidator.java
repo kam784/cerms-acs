@@ -109,8 +109,8 @@ public class SDValidator {
 
 		//checkForNonNumericRawSerialNumber(fileName, sdCsvRow, fileProcessLogs, integer);
 
-		Long serialNumber = Long.parseLong(sdCsvRow.getRawSerialNumber().replaceAll(
-				"[^a-zA-Z0-9]", "").substring(sdCsvRow.getRawSerialNumber().length() - 9));
+		String serialNumber = sdCsvRow.getRawSerialNumber().replaceAll(
+				"[^a-zA-Z0-9]", "").substring(sdCsvRow.getRawSerialNumber().length() - 9);
 
 		CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(serialNumber);
 
@@ -180,8 +180,8 @@ public class SDValidator {
 		}
 	}
 
-	private Long getSerialNumber(String rawSerialNumber) {
-		return Long.parseLong(rawSerialNumber.replaceAll(
-				"[^a-zA-Z0-9]", "").substring(rawSerialNumber.length() - 9));
+	private String getSerialNumber(String rawSerialNumber) {
+		return rawSerialNumber.replaceAll(
+				"[^a-zA-Z0-9]", "").substring(rawSerialNumber.length() - 9);
 	}
 }

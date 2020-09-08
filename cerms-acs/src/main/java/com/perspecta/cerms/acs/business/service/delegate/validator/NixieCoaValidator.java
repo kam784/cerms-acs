@@ -66,7 +66,7 @@ public class NixieCoaValidator {
 
 		if (StringUtils.isBlank(nixieCOARow.getSerialNumber())) {
 			fileProcessLog = new FileProcessLog();
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : Long.valueOf(nixieCOARow.getSerialNumber()));
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -76,7 +76,7 @@ public class NixieCoaValidator {
 
 		if (StringUtils.isBlank(nixieCOARow.getCountyId())) {
 			fileProcessLog = new FileProcessLog();
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : Long.valueOf(nixieCOARow.getSerialNumber()));
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COUNTY_ID));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -86,7 +86,7 @@ public class NixieCoaValidator {
 
 		if(StringUtils.isBlank(nixieCOARow.getDeliverabilityCode()) && StringUtils.isBlank(nixieCOARow.getChangeOfAddress())) {
 			fileProcessLog = new FileProcessLog();
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : Long.valueOf(nixieCOARow.getSerialNumber()));
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COA));
 			fileProcessLog.setProcessedDate(getCurrentDate());
@@ -97,8 +97,8 @@ public class NixieCoaValidator {
 
 	private void checkForErroneousFields(String fileName, NixieCoaRow nixieCOARow, List<FileProcessLog> fileProcessLogs, Integer integer) {
 
-		Long serialNumber = Long.parseLong(nixieCOARow.getSerialNumber().replaceAll(
-				"[^a-zA-Z0-9]", ""));
+		String serialNumber = nixieCOARow.getSerialNumber().replaceAll(
+				"[^a-zA-Z0-9]", "");
 
 		CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(serialNumber);
 
@@ -115,7 +115,7 @@ public class NixieCoaValidator {
 
 		if (!Long.valueOf(nixieCOARow.getCountyId()).equals(COUNTY_ID_VALUE)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : Long.valueOf(nixieCOARow.getSerialNumber()));
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_COUNTY_ID.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDate());

@@ -15,7 +15,7 @@ public class CermsAcs {
 	@Column(name = "cermsAcsId")
 	private int id;
 
-	private long serialNumber;
+	private String serialNumber;
 	private String caseNumber;
 	private long docTypeId;
 	private Date mailDate;
