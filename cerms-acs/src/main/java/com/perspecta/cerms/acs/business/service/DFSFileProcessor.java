@@ -44,7 +44,7 @@ public class DFSFileProcessor {
 				cermsAcsRecords = cermsAcsConverter.dfsToCermsAcs(dfsCsvRows);
 			}
 
-			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName());
+			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName(), FileProcessLog.FileType.DFS);
 
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 

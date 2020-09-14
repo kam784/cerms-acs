@@ -25,5 +25,5 @@ public class CermsAcs {
 	private String coaInfo;
 	private Date addDate;
 	private Date updateDate;
-	private Date cermsNotificationDate;
+	private Date notificationDate;
 }

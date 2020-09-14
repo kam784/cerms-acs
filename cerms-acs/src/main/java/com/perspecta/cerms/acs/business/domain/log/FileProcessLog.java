@@ -12,7 +12,11 @@ import java.util.Date;
 public class FileProcessLog {
 
 	public enum LogStatus {
-		SUCCESS, FAILED
+		SUCCESS, FAILED, ERROR
+	}
+
+	public enum FileType {
+		DFS, NIXIE, SD
 	}
 
 	@Id
@@ -27,6 +31,9 @@ public class FileProcessLog {
 
 	@Enumerated(EnumType.STRING)
 	private LogStatus logStatus;
+
+	@Enumerated(EnumType.STRING)
+	private FileType fileType;
 
 
 }

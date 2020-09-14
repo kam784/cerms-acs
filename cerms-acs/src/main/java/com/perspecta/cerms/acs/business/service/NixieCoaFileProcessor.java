@@ -39,7 +39,7 @@ public class NixieCoaFileProcessor {
 
 			cermsAcsRecords = cermsAcsConverter.nixieCoaToCermsAcs(nixieCoaRows);
 
-			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, nixieCoaFile.getName());
+			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, nixieCoaFile.getName(), FileProcessLog.FileType.NIXIE);
 
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 

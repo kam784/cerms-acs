@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,23 +59,17 @@ public class DocumentProcessor {
 
 			sendErrorEmail(processedFileMap);
 
-			//	moveProcessedFiles(processedFileMap);
+			moveProcessedFiles(processedFileMap);
 		}
 
 	}
 
 	private void processFiles(Map<File, Boolean> processedFileMap, List<File> dfsFiles, List<File> nixieCoaFiles, List<File> sdFiles) {
-		dfsFiles.forEach(dfsFile -> {
-			processedFileMap.put(dfsFile, dfsFileProcessor.processDFSFile(dfsFile));
-		});
+		dfsFiles.forEach(dfsFile ->	processedFileMap.put(dfsFile, dfsFileProcessor.processDFSFile(dfsFile)));
 
-		nixieCoaFiles.forEach(nixieCoaFile -> {
-			processedFileMap.put(nixieCoaFile, nixieCoaFileProcessor.processNixieCoaFile(nixieCoaFile));
-		});
+		nixieCoaFiles.forEach(nixieCoaFile -> processedFileMap.put(nixieCoaFile, nixieCoaFileProcessor.processNixieCoaFile(nixieCoaFile)));
 
-		sdFiles.forEach(sdFile -> {
-			processedFileMap.put(sdFile, sdFileProcessor.processSDFile(sdFile));
-		});
+		sdFiles.forEach(sdFile -> processedFileMap.put(sdFile, sdFileProcessor.processSDFile(sdFile)));
 	}
 
 	private void organizeFiles(File[] acsFiles, List<File> dfsFiles, List<File> nixieCoaFiles, List<File> sdFiles) {
@@ -119,7 +116,10 @@ public class DocumentProcessor {
 					filePath = documentResource.getFailureDestinationFolderPath() + PATH_DELIMITER + processedFileName;
 				}
 				try {
-					FileUtils.moveFile(new File(sourcePath), new File(filePath));
+					Files.move(Paths.get(sourcePath),
+							Paths.get(filePath),
+							StandardCopyOption.REPLACE_EXISTING);
+					//FileUtils.moveFile(new File(sourcePath), new File(filePath));
 				} catch (Exception ex) {
 					log.error("File move exception: " + ex);
 				}

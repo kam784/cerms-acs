@@ -44,7 +44,7 @@ public class SDFileProcessor {
 				cermsAcsRecords = cermsAcsConverter.sdToCermsAcs(sdCsvRows);
 			}
 
-			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName());
+			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName(), FileProcessLog.FileType.SD);
 
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 

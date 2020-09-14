@@ -47,6 +47,7 @@ public class DFSFileValidator {
 				});
 
 		dfsCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isFalse(dfsCsvRow.isValid()));
+		fileProcessLogs.forEach(fileProcessLog -> fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR));
 	}
 
 	private void checkForEmptyFields(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer){
@@ -98,7 +99,7 @@ public class DFSFileValidator {
 	}
 
 	private void checkForMailDateFormat(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer) {
-		Date date = null;
+		Date date;
 		boolean validFormat = true;
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat(MAIL_DATE_FORMAT);

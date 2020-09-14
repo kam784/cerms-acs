@@ -31,6 +31,7 @@ public class CermsAcsConverter {
 	private final CermsAcsRepository cermsAcsRepository;
 
 	private static final Long DOCTYPE_ID = 100862L;
+	private static final String SD_CODE = "SD";
 
 	public List<CermsAcs> dfsToCermsAcs (List<DFSCsvRow> dfsCsvRows) {
 
@@ -58,7 +59,15 @@ public class CermsAcsConverter {
 
 					if(Objects.nonNull(cermsAcs)) {
 						String scanDateString = sdCsvRow.getDestructionDate() + " " + sdCsvRow.getDestructionTime();
-						cermsAcs.setDestructionDate(parseDateString(scanDateString));
+
+						Date scanDate = parseDateString(scanDateString);
+
+						if(Objects.isNull(cermsAcs.getDeliverabilityCode()) && Objects.isNull(cermsAcs.getResponseDate())){
+							cermsAcs.setDeliverabilityCode(SD_CODE);
+							cermsAcs.setResponseDate(scanDate);
+						}
+
+						cermsAcs.setDestructionDate(scanDate);
 					}
 
 					return cermsAcs;
@@ -90,11 +99,12 @@ public class CermsAcsConverter {
 
 					if(Objects.nonNull(cermsAcs) &&
 							!StringUtils.isEmpty(nixieCoaRow.getRecordHeaderCode()) &&
-							!nixieCoaRow.getRecordHeaderCode().equalsIgnoreCase("D") &&
+							nixieCoaRow.getRecordHeaderCode().equalsIgnoreCase("D") &&
 							BooleanUtils.isTrue(nixieCoaRow.isValid())) {
 						cermsAcs.setDeliverabilityCode(nixieCoaRow.getDeliverabilityCode());
 						cermsAcs.setResponseDate(responseDate);
-						cermsAcs.setCoaInfo(StringUtils.isEmpty(nixieCoaRow.getDeliverabilityCode())? nixieCoaRow.getChangeOfAddress():null);
+						cermsAcs.setCoaInfo(StringUtils.isEmpty(nixieCoaRow.getDeliverabilityCode().trim())? nixieCoaRow.getChangeOfAddress():null);
+						cermsAcs.setUpdateDate(new Date());
 					}
 
 					return cermsAcs;
@@ -102,10 +112,13 @@ public class CermsAcsConverter {
 				.collect(Collectors.toList());
 	}
 
-	public List<FileProcessLog> finalizeProcessLogs(List<FileProcessLog> fileProcessLogs, String fileName) {
+	public List<FileProcessLog> finalizeProcessLogs(List<FileProcessLog> fileProcessLogs, String fileName, FileProcessLog.FileType fileType) {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 		fileProcessLog.setFileName(fileName);
 		fileProcessLog.setProcessedDate(getCurrentDate());
+		fileProcessLog.setFileType(fileType);
+
+		fileProcessLogs.forEach(fileLog -> fileLog.setFileType(fileType));
 
 		if(CollectionUtils.isNotEmpty(fileProcessLogs)) {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.FILE_PROCESS_ERROR_MESSAGE.getMessage(), fileName, fileProcessLogs.size()));
