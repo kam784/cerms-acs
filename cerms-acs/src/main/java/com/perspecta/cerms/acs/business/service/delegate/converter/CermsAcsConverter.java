@@ -36,6 +36,7 @@ public class CermsAcsConverter {
 	public List<CermsAcs> dfsToCermsAcs (List<DFSCsvRow> dfsCsvRows) {
 
 		return dfsCsvRows.stream()
+				.filter(DFSCsvRow::isValid)
 				.map(dfsCsvRow -> {
 					CermsAcs cermsAcs = new CermsAcs();
 					cermsAcs.setSerialNumber(dfsCsvRow.getSerialNumber());

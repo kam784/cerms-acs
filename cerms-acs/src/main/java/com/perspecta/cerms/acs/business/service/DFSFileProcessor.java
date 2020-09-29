@@ -42,10 +42,8 @@ public class DFSFileProcessor {
 			// Validating DFSCsvRow list records and adding error records in fileProcessLogs
 			dfsFileValidator.validate(file.getName(), dfsCsvRows, fileProcessLogs);
 
-			// Converting DFSCsvRow dto list to CermsAcs list (to be saved later in database) if there are no errors.
-			if(CollectionUtils.isEmpty(fileProcessLogs)) {
-				cermsAcsRecords = cermsAcsConverter.dfsToCermsAcs(dfsCsvRows);
-			}
+			// Converting DFSCsvRow dto list to CermsAcs list (to be saved later in database).
+			cermsAcsRecords = cermsAcsConverter.dfsToCermsAcs(dfsCsvRows);
 
 			// Massaging the final logs.
 			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName(), FileProcessLog.FileType.DFS, dfsCsvRows.size());

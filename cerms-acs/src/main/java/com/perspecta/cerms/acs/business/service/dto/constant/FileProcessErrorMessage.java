@@ -8,6 +8,7 @@ public enum FileProcessErrorMessage {
 	EMPTY_FIELD("Line %s field %s is missing."),
 	DUPLICATE_FIELD("Line %s field %s is a duplicate."),
 	DUPLICATE_FIELD_FILE("Duplicate %s in the same file at line %s."),
+	DUPLICATE_FILE("Duplicate File."),
 	INVALID_MAIL_DATE("Line %s %s has invalid format."),
 	INVALID_FILE("Invalid file %s, missing header record."),
 	INVALID_FILE_RESPONSEDATE("Invalid file %s, header record does not have response date."),

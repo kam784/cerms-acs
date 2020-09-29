@@ -8,18 +8,14 @@ import com.perspecta.cerms.acs.business.service.dto.constant.FileProcessErrorMes
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDate;
 import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDateWithTime;
 
 @Component
@@ -41,28 +37,56 @@ public class DFSFileValidator {
 
         List<String> serialNumbers = new ArrayList<>();
 
-        dfsCsvRows.forEach(dfsCsvRow -> {
-            Integer rowNumber = integer.getAndIncrement();
+        if(CollectionUtils.isNotEmpty(dfsCsvRows)) {
 
-            // check for empty fields and add to fileProcessLogs if error.
-            checkForEmptyFields(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
+            boolean fileValidationCheck = checkFileValidation(fileName, dfsCsvRows.get(0), fileProcessLogs);
 
-            // check for valid serial number (valid range).
-            checkForValidSerialNumber(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
+            if(fileValidationCheck) {
+                dfsCsvRows.forEach(dfsCsvRow -> {
+                    Integer rowNumber = integer.getAndIncrement();
 
-            // check for duplicate serial number (in db or in the file itself).
-            checkForDuplicate(fileName, dfsCsvRow, fileProcessLogs, serialNumbers, rowNumber);
+                    // check for empty fields and add to fileProcessLogs if error.
+                    checkForEmptyFields(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
 
-            // check for valid mail date format.
-            checkForMailDateFormat(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
+                    // check for valid serial number (valid range).
+                    checkForValidSerialNumber(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
 
-            if (StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
-                serialNumbers.add(parseSerialNumber(dfsCsvRow.getSerialNumber()));
+                    // check for duplicate serial number (in db or in the file itself).
+                    checkForDuplicate(fileName, dfsCsvRow, fileProcessLogs, serialNumbers, rowNumber);
+
+                    // check for valid mail date format.
+                    checkForMailDateFormat(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
+
+                    if (StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
+                        serialNumbers.add(parseSerialNumber(dfsCsvRow.getSerialNumber()));
+                    }
+                });
+
+                dfsCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isFalse(dfsCsvRow.isValid()));
+                fileProcessLogs.forEach(fileProcessLog -> fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR));
             }
-        });
+        }
+    }
 
-        dfsCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isFalse(dfsCsvRow.isValid()));
-        fileProcessLogs.forEach(fileProcessLog -> fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR));
+    private boolean checkFileValidation(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs) {
+        boolean validFile = true;
+        if(StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
+            String serialNumber = parseSerialNumber(dfsCsvRow.getSerialNumber());
+            CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(serialNumber);
+
+            if (Objects.nonNull(cermsAcs)) {
+                FileProcessLog fileProcessLog = new FileProcessLog();
+                fileProcessLog.setSerialNumber(serialNumber);
+                fileProcessLog.setFileName(fileName);
+                fileProcessLog.setLogEntry(FileProcessErrorMessage.DUPLICATE_FILE.getMessage());
+                fileProcessLog.setLogStatus(FileProcessLog.LogStatus.EXCEPTION);
+                fileProcessLogs.add(fileProcessLog);
+                fileProcessLog.setProcessedDate(getCurrentDateWithTime());
+                dfsCsvRow.setValid(false);
+                validFile = false;
+            }
+        }
+        return validFile;
     }
 
     private void checkForEmptyFields(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer) {
