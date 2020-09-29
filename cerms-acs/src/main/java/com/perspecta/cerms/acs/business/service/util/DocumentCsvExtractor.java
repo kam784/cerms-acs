@@ -73,11 +73,13 @@ public class DocumentCsvExtractor {
 			Long totalRows = 0L;
 			Long successfulRows = 0L;
 
+			//extracting record in iterator
 			MappingIterator<DFSCsvRow> iterator = dfsREADER.readValues(csvInputStream);
 
 			while (iterator.hasNext()) {
 				try {
 					DFSCsvRow csvRow = iterator.next();
+					// adding record in dfsCsvRows list
 					dfsCsvRows.add(csvRow);
 					totalRows++;
 					successfulRows++;

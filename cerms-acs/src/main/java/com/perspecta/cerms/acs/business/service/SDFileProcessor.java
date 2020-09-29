@@ -40,11 +40,9 @@ public class SDFileProcessor {
 
 			sdValidator.validate(file.getName(), sdCsvRows, fileProcessLogs);
 
-			if(CollectionUtils.isEmpty(fileProcessLogs)) {
-				cermsAcsRecords = cermsAcsConverter.sdToCermsAcs(sdCsvRows);
-			}
+			cermsAcsRecords = cermsAcsConverter.sdToCermsAcs(sdCsvRows);
 
-			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName(), FileProcessLog.FileType.SD);
+			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName(), FileProcessLog.FileType.SD, sdCsvRows.size());
 
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 

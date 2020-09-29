@@ -51,9 +51,10 @@ public class CermsAcsConverter {
 	public List<CermsAcs> sdToCermsAcs(List<SDCsvRow> sdCsvRows) {
 
 		return sdCsvRows.stream()
+				.filter(SDCsvRow::isValid)
 				.map(sdCsvRow -> {
 					String serialNumber = sdCsvRow.getRawSerialNumber().replaceAll(
-							"[^a-zA-Z0-9]", "").substring(sdCsvRow.getRawSerialNumber().length() - 9);
+							"[^a-zA-Z0-9]", "").substring(11, sdCsvRow.getRawSerialNumber().length()-5);
 
 					CermsAcs cermsAcs = Optional.ofNullable(cermsAcsRepository.findBySerialNumber(serialNumber)).orElse(null);
 
@@ -65,6 +66,7 @@ public class CermsAcsConverter {
 						if(Objects.isNull(cermsAcs.getDeliverabilityCode()) && Objects.isNull(cermsAcs.getResponseDate())){
 							cermsAcs.setDeliverabilityCode(SD_CODE);
 							cermsAcs.setResponseDate(scanDate);
+							cermsAcs.setUpdateDate(new Date());
 						}
 
 						cermsAcs.setDestructionDate(scanDate);
@@ -90,6 +92,7 @@ public class CermsAcsConverter {
 		nixieCoaRows.removeIf(nixieCoaRow -> nixieCoaRow.getRecordHeaderCode().equalsIgnoreCase("H"));
 
 		return nixieCoaRows.stream()
+				.filter(NixieCoaRow::isValid)
 				.map(nixieCoaRow -> {
 
 					String serialNumber = nixieCoaRow.getSerialNumber().replaceAll(
@@ -112,7 +115,7 @@ public class CermsAcsConverter {
 				.collect(Collectors.toList());
 	}
 
-	public List<FileProcessLog> finalizeProcessLogs(List<FileProcessLog> fileProcessLogs, String fileName, FileProcessLog.FileType fileType) {
+	public List<FileProcessLog> finalizeProcessLogs(List<FileProcessLog> fileProcessLogs, String fileName, FileProcessLog.FileType fileType, int totalFileEntries) {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 		fileProcessLog.setFileName(fileName);
 		fileProcessLog.setProcessedDate(getCurrentDate());
@@ -122,7 +125,7 @@ public class CermsAcsConverter {
 
 		if(CollectionUtils.isNotEmpty(fileProcessLogs)) {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.FILE_PROCESS_ERROR_MESSAGE.getMessage(), fileName, fileProcessLogs.size()));
-			fileProcessLog.setLogStatus(FileProcessLog.LogStatus.FAILED);
+			fileProcessLog.setLogStatus(fileProcessLogs.size() == totalFileEntries ? FileProcessLog.LogStatus.FAILED:FileProcessLog.LogStatus.EXCEPTION);
 		} else {
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.FILE_PROCESS_SUCCESS_MESSAGE.getMessage(), fileName));
 			fileProcessLog.setLogStatus(FileProcessLog.LogStatus.SUCCESS);

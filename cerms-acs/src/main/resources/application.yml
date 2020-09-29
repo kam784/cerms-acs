@@ -88,7 +88,13 @@ cerms:
 
     folder:
       path:
-        source: 'C:\temp\acsFiles'
+        source: 'Y:\acsWatchFolder'
         destination:
-          success: 'C:\temp\acsProcessedFiles'
-          failure: 'C:\temp\acsFailedFiles'
+          success:
+            dfs: 'Y:\acsProcessedFiles\dfs'
+            sd: 'Y:\acsProcessedFiles\sd'
+            nixie: 'Y:\acsProcessedFiles\nixie'
+          failure:
+            dfs: 'Y:\acsFailedFiles\dfs'
+            sd: 'Y:\acsFailedFiles\sd'
+            nixie: 'Y:\acsFailedFiles\nixie'

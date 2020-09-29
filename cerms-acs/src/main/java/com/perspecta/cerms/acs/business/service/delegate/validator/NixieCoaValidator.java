@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDate;
+import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDateWithTime;
 
 @Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -59,6 +60,12 @@ public class NixieCoaValidator {
 				logInvalidFileMissingResponseDate(fileName, fileProcessLogs);
 			}
 		}
+
+		if(CollectionUtils.isNotEmpty(fileProcessLogs)) {
+			fileProcessLogs.forEach(fileProcessLog -> {
+				fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR);
+			});
+		}
 	}
 
 	private void checkForEmptyFields(String fileName, NixieCoaRow nixieCOARow, List<FileProcessLog> fileProcessLogs, Integer integer) {
@@ -69,7 +76,7 @@ public class NixieCoaValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			nixieCOARow.setValid(false);
 		}
@@ -79,7 +86,7 @@ public class NixieCoaValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COUNTY_ID));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			nixieCOARow.setValid(false);
 		}
@@ -89,7 +96,7 @@ public class NixieCoaValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COA));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			nixieCOARow.setValid(false);
 		}
@@ -107,7 +114,7 @@ public class NixieCoaValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : serialNumber);
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.SERIAL_NUMBER_NOT_PRESENT.getMessage(), integer, SERIAL_NUMBER));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			nixieCOARow.setValid(false);
 		}
@@ -118,7 +125,7 @@ public class NixieCoaValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(nixieCOARow.getSerialNumber()) ? null : nixieCOARow.getSerialNumber());
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_COUNTY_ID.getMessage(), integer, SERIAL_NUMBER));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			nixieCOARow.setValid(false);
 		}
@@ -128,7 +135,7 @@ public class NixieCoaValidator {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 		fileProcessLog.setFileName(fileName);
 		fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_FILE.getMessage(), fileName));
-		fileProcessLog.setProcessedDate(getCurrentDate());
+		fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 		fileProcessLogs.add(fileProcessLog);
 	}
 
@@ -136,7 +143,7 @@ public class NixieCoaValidator {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 		fileProcessLog.setFileName(fileName);
 		fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_FILE_RESPONSEDATE.getMessage(), fileName));
-		fileProcessLog.setProcessedDate(getCurrentDate());
+		fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 		fileProcessLogs.add(fileProcessLog);
 	}
 

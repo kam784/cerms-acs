@@ -19,7 +19,11 @@ public class DataPersister {
 	private final FileProcessLogRepository fileProcessLogRepository;
 
 	public void persistData(List<CermsAcs> cermsAcsRecords, List<FileProcessLog> fileProcessLogs) {
-		cermsAcsRepository.saveAll(cermsAcsRecords);
+		cermsAcsRecords.forEach(cermsAcs -> {
+			log.debug("The record is " + cermsAcs);
+			cermsAcsRepository.save(cermsAcs);
+		});
+		//cermsAcsRepository.saveAll(cermsAcsRecords);
 		fileProcessLogRepository.saveAll(fileProcessLogs);
 	}
 

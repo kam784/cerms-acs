@@ -29,5 +29,13 @@ public class TimeUtils {
 		return formatter.format(getCurrentDateWithTime());
 	}
 
+	public static int getCurrentMonth() {
+		return LocalDate.now().getMonthValue();
+	}
+
+	public static int getCurrentYear() {
+		return LocalDate.now().getYear();
+	}
+
 
 }

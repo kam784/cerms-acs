@@ -12,7 +12,7 @@ import java.util.Date;
 public class FileProcessLog {
 
 	public enum LogStatus {
-		SUCCESS, FAILED, ERROR
+		SUCCESS, FAILED, EXCEPTION, ERROR
 	}
 
 	public enum FileType {

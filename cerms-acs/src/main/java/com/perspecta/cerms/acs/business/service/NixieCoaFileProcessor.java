@@ -35,11 +35,12 @@ public class NixieCoaFileProcessor {
 		try {
 			List<NixieCoaRow> nixieCoaRows = documentCsvExtractor.extractNixieCoaRows(nixieCoaFile);
 
+
 			nixieCoaValidator.validate(nixieCoaFile.getName(), nixieCoaRows, fileProcessLogs);
 
 			cermsAcsRecords = cermsAcsConverter.nixieCoaToCermsAcs(nixieCoaRows);
 
-			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, nixieCoaFile.getName(), FileProcessLog.FileType.NIXIE);
+			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, nixieCoaFile.getName(), FileProcessLog.FileType.NIXIE, nixieCoaRows.size());
 
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 

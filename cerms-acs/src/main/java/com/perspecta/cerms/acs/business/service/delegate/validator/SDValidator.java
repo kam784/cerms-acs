@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDate;
+import static com.perspecta.cerms.acs.business.service.util.TimeUtils.getCurrentDateWithTime;
 
 @Component
 @AllArgsConstructor(onConstructor = @__(@Autowired))
@@ -43,7 +44,7 @@ public class SDValidator {
 				StringUtils.isNotBlank(sdCsvRows.get(0).getCode()) &&
 				sdCsvRows.get(0).getCode().equalsIgnoreCase("H")) {
 
-			sdCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isTrue(dfsCsvRow.getCode().equals("H")));
+			sdCsvRows.removeIf(sdCsvRow -> StringUtils.isBlank(sdCsvRow.getCode()) || BooleanUtils.isTrue(sdCsvRow.getCode().equals("H")));
 
 			sdCsvRows.forEach(sdCsvRow -> {
 				Integer rowNumber = integer.getAndIncrement();
@@ -61,6 +62,10 @@ public class SDValidator {
 			logInvalidFile(fileName, fileProcessLogs);
 			sdCsvRows = Collections.emptyList();
 		}
+
+		if(CollectionUtils.isNotEmpty(fileProcessLogs)) {
+			fileProcessLogs.forEach(fileProcessLog -> fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR));
+		}
 	}
 
 	private void checkForEmptyFields(String fileName, SDCsvRow sdCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer) {
@@ -71,7 +76,7 @@ public class SDValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, COUNTY_ID));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			sdCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
 		}
@@ -81,7 +86,7 @@ public class SDValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SERIAL_NUMBER));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			sdCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
 		}
@@ -91,7 +96,7 @@ public class SDValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.EMPTY_FIELD.getMessage(), integer, SCAN_DATE));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			sdCsvRow.setValid(false);
 			fileProcessLogs.add(fileProcessLog);
 		}
@@ -101,7 +106,7 @@ public class SDValidator {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 		fileProcessLog.setFileName(fileName);
 		fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_FILE.getMessage(), fileName));
-		fileProcessLog.setProcessedDate(getCurrentDate());
+		fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 		fileProcessLogs.add(fileProcessLog);
 	}
 
@@ -110,7 +115,7 @@ public class SDValidator {
 		//checkForNonNumericRawSerialNumber(fileName, sdCsvRow, fileProcessLogs, integer);
 
 		String serialNumber = sdCsvRow.getRawSerialNumber().replaceAll(
-				"[^a-zA-Z0-9]", "").substring(sdCsvRow.getRawSerialNumber().length() - 9);
+				"[^a-zA-Z0-9]", "").substring(11, sdCsvRow.getRawSerialNumber().length()-5);
 
 		CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(serialNumber);
 
@@ -119,7 +124,7 @@ public class SDValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.SERIAL_NUMBER_NOT_PRESENT.getMessage(), integer, SERIAL_NUMBER));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			sdCsvRow.setValid(false);
 		}
@@ -130,7 +135,7 @@ public class SDValidator {
 			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_COUNTY_ID.getMessage(), integer, SERIAL_NUMBER));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			sdCsvRow.setValid(false);
 		}
@@ -147,7 +152,7 @@ public class SDValidator {
 				fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
 				fileProcessLog.setFileName(fileName);
 				fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, SCAN_DATE));
-				fileProcessLog.setProcessedDate(getCurrentDate());
+				fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 				fileProcessLogs.add(fileProcessLog);
 				validFormat = false;
 			}
@@ -168,7 +173,7 @@ public class SDValidator {
 			FileProcessLog fileProcessLog = new FileProcessLog();
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_FORMAT.getMessage(), integer, SERIAL_NUMBER));
-			fileProcessLog.setProcessedDate(getCurrentDate());
+			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 			fileProcessLogs.add(fileProcessLog);
 			sdCsvRow.setValid(false);
 		}
@@ -182,6 +187,6 @@ public class SDValidator {
 
 	private String getSerialNumber(String rawSerialNumber) {
 		return rawSerialNumber.replaceAll(
-				"[^a-zA-Z0-9]", "").substring(rawSerialNumber.length() - 9);
+				"[^a-zA-Z0-9]", "").substring(9, rawSerialNumber.length()-4);
 	}
 }

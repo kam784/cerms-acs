@@ -36,16 +36,21 @@ public class DFSFileProcessor {
 		try {
 			InputStream inputStream = new FileInputStream(file);
 
+			// Extracting file records into the DFSCsvRow dto list.
 			List<DFSCsvRow> dfsCsvRows = documentCsvExtractor.extractDfsRows(inputStream);
 
+			// Validating DFSCsvRow list records and adding error records in fileProcessLogs
 			dfsFileValidator.validate(file.getName(), dfsCsvRows, fileProcessLogs);
 
+			// Converting DFSCsvRow dto list to CermsAcs list (to be saved later in database) if there are no errors.
 			if(CollectionUtils.isEmpty(fileProcessLogs)) {
 				cermsAcsRecords = cermsAcsConverter.dfsToCermsAcs(dfsCsvRows);
 			}
 
-			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName(), FileProcessLog.FileType.DFS);
+			// Massaging the final logs.
+			cermsAcsConverter.finalizeProcessLogs(fileProcessLogs, file.getName(), FileProcessLog.FileType.DFS, dfsCsvRows.size());
 
+			// Saving cermsAcsRecords and logs in database.
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 
 		} catch (Exception ex) {

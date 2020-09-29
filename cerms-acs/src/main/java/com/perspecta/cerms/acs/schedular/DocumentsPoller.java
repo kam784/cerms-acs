@@ -19,6 +19,7 @@ public class DocumentsPoller {
 
 	@Scheduled(cron = "${cerms.acs.document.poller.schedulerInterval:0 0/1 * ? * *}")
 	public void process() {
+		// Main entry point : starting process documents
 		documentProcessor.processDocuments();
 	}
 }
