@@ -30,6 +30,7 @@ public class DFSFileProcessor {
 	private final DataPersister dataPersister;
 
 	public boolean processDFSFile(File file) {
+		boolean fileProcessedSuccessully = true;
 		List<FileProcessLog> fileProcessLogs = new ArrayList<>();
 		List<CermsAcs> cermsAcsRecords = new ArrayList<>();
 
@@ -51,11 +52,16 @@ public class DFSFileProcessor {
 			// Saving cermsAcsRecords and logs in database.
 			dataPersister.persistData(cermsAcsRecords, fileProcessLogs);
 
+			fileProcessedSuccessully = fileProcessLogs.size() == 1;
+
+			inputStream.close();
+
+
 		} catch (Exception ex) {
 			log.warn("Could not process dfs file: " + ex);
 		}
 
-		return fileProcessLogs.size() == 1;
+		return fileProcessedSuccessully;
 
 	}
 }

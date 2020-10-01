@@ -119,7 +119,7 @@ public class CermsAcsConverter {
 	public List<FileProcessLog> finalizeProcessLogs(List<FileProcessLog> fileProcessLogs, String fileName, FileProcessLog.FileType fileType, int totalFileEntries) {
 		FileProcessLog fileProcessLog = new FileProcessLog();
 		fileProcessLog.setFileName(fileName);
-		fileProcessLog.setProcessedDate(getCurrentDate());
+		fileProcessLog.setProcessedDate(getCurrentDateWithTime());
 		fileProcessLog.setFileType(fileType);
 
 		fileProcessLogs.forEach(fileLog -> fileLog.setFileType(fileType));

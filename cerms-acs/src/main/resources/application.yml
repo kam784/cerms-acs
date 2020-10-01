@@ -71,7 +71,7 @@ spring:
             enable: true
 
 server:
-  port: 8450
+  port: 8011
 
 logging:
   level:
@@ -88,13 +88,13 @@ cerms:
 
     folder:
       path:
-        source: 'Y:\acsWatchFolder'
+        source: '\\ustlsncsd0004.cosd.co.san-diego.ca.us\CERMS_ACS_Test\acsWatchFolder'
         destination:
           success:
-            dfs: 'Y:\acsProcessedFiles\dfs'
-            sd: 'Y:\acsProcessedFiles\sd'
-            nixie: 'Y:\acsProcessedFiles\nixie'
+            dfs: '\\ustlsncsd0004.cosd.co.san-diego.ca.us\CERMS_ACS_Test\acsProcessedFiles\dfs'
+            sd: '\\ustlsncsd0004.cosd.co.san-diego.ca.us\CERMS_ACS_Test\acsProcessedFiles\sd'
+            nixie: '\\ustlsncsd0004.cosd.co.san-diego.ca.us\CERMS_ACS_Test\acsProcessedFiles\nixie'
           failure:
-            dfs: 'Y:\acsFailedFiles\dfs'
-            sd: 'Y:\acsFailedFiles\sd'
-            nixie: 'Y:\acsFailedFiles\nixie'
+            dfs: '\\ustlsncsd0004.cosd.co.san-diego.ca.us\CERMS_ACS_Test\acsFailedFiles\dfs'
+            sd: '\\ustlsncsd0004.cosd.co.san-diego.ca.us\CERMS_ACS_Test\acsFailedFiles\sd'
+            nixie: '\\ustlsncsd0004.cosd.co.san-diego.ca.us\CERMS_ACS_Test\acsFailedFiles\nixie'

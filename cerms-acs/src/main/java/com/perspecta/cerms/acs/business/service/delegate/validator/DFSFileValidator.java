@@ -79,7 +79,7 @@ public class DFSFileValidator {
                 fileProcessLog.setSerialNumber(serialNumber);
                 fileProcessLog.setFileName(fileName);
                 fileProcessLog.setLogEntry(FileProcessErrorMessage.DUPLICATE_FILE.getMessage());
-                fileProcessLog.setLogStatus(FileProcessLog.LogStatus.EXCEPTION);
+                fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR);
                 fileProcessLogs.add(fileProcessLog);
                 fileProcessLog.setProcessedDate(getCurrentDateWithTime());
                 dfsCsvRow.setValid(false);

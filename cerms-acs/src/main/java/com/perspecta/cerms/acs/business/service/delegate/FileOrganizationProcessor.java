@@ -4,12 +4,14 @@ import com.perspecta.cerms.acs.business.service.resource.DocumentResource;
 import com.perspecta.cerms.acs.business.service.util.TimeUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,9 +58,11 @@ public class FileOrganizationProcessor {
     public void cleanSourceDirectory() {
         try {
             File source = new File(documentResource.getSourceFolderPath());
-            FileUtils.cleanDirectory(source);
+            for(File file : source.listFiles()) {
+                FileUtils.forceDelete(file);
+            }
         } catch (Exception ex) {
-            log.warn("Could not clean the source directory.");
+            log.warn("Could not delete the source directory files.");
         }
     }
 }

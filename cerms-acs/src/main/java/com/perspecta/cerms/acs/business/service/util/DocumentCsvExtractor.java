@@ -179,6 +179,7 @@ public class DocumentCsvExtractor {
 				}
 			}
 
+			scan.close();
 			log.info(String.format("%d/%d nixie rows extracted successfully", successfulRows, totalRows));
 
 

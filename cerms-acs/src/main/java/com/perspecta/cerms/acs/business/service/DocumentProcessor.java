@@ -29,7 +29,11 @@ public class DocumentProcessor {
 
         List<File> errorFiles = new ArrayList<>();
 
+        log.info("The source path is: " + documentResource.getSourceFolderPath());
+
         File folder = new File(documentResource.getSourceFolderPath());
+
+        log.info("The files are: " + folder.listFiles());
 
         File[] acsFiles = folder.listFiles();
 
@@ -54,6 +58,8 @@ public class DocumentProcessor {
     }
 
     private void processFiles(List<File> errorFiles, List<File> dfsFiles, List<File> nixieCoaFiles, List<File> sdFiles) {
+        log.info("Number of dfs fies to process: " + dfsFiles.size());
+
         dfsFiles.forEach(dfsFile -> {
             // Processing each dfs file and adding it in errorFiles list if there is exception/error. Moving files to either success/fail folder.
             boolean isSuccessfullyProcessed = dfsFileProcessor.processDFSFile(dfsFile);
@@ -66,6 +72,9 @@ public class DocumentProcessor {
             }
         });
 
+        log.info("Number of nixie fies to process: " + nixieCoaFiles.size());
+
+
         nixieCoaFiles.forEach(nixieCoaFile -> {
             // Processing each nixie file and adding it in errorFiles list if there exception/error. Moving files to either success/fail folder.
             boolean isSuccessfullyProcessed = nixieCoaFileProcessor.processNixieCoaFile(nixieCoaFile);
@@ -77,6 +86,9 @@ public class DocumentProcessor {
                 fileOrganizationProcessor.moveProcessedFiles(nixieCoaFile, documentResource.getSuccessNixieDestinationFolderPath());
             }
         });
+
+        log.info("Number of sd fies to process: " + sdFiles.size());
+
 
         sdFiles.forEach(sdFile -> {
             // Processing each sd file and adding it in errorFiles list if there is exception/error. Moving files to either success/fail folder.
