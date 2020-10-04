@@ -45,14 +45,15 @@ public class DFSFileValidator {
                 dfsCsvRows.forEach(dfsCsvRow -> {
                     Integer rowNumber = integer.getAndIncrement();
 
+                    dfsCsvRow.setValid(true);
                     // check for empty fields and add to fileProcessLogs if error.
                     checkForEmptyFields(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
 
-                    // check for valid serial number (valid range).
-                    checkForValidSerialNumber(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
-
                     // check for duplicate serial number (in db or in the file itself).
                     checkForDuplicate(fileName, dfsCsvRow, fileProcessLogs, serialNumbers, rowNumber);
+
+                    // check for valid serial number (valid range).
+                    checkForValidSerialNumber(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
 
                     // check for valid mail date format.
                     checkForMailDateFormat(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
@@ -62,9 +63,11 @@ public class DFSFileValidator {
                     }
                 });
 
-                dfsCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isFalse(dfsCsvRow.isValid()));
-                fileProcessLogs.forEach(fileProcessLog -> fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR));
             }
+
+            dfsCsvRows.removeIf(dfsCsvRow -> BooleanUtils.isFalse(dfsCsvRow.isValid()));
+            fileProcessLogs.forEach(fileProcessLog -> fileProcessLog.setLogStatus(FileProcessLog.LogStatus.ERROR));
+
         }
     }
 
@@ -101,7 +104,7 @@ public class DFSFileValidator {
             fileProcessLogs.add(fileProcessLog);
         }
 
-        if (StringUtils.isBlank(dfsCsvRow.getCaseNumber())) {
+        if (BooleanUtils.isTrue(dfsCsvRow.isValid()) && StringUtils.isBlank(dfsCsvRow.getCaseNumber())) {
             fileProcessLog = new FileProcessLog();
             fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber()) ? null : parseSerialNumber(dfsCsvRow.getSerialNumber()));
             fileProcessLog.setFileName(fileName);
@@ -111,7 +114,7 @@ public class DFSFileValidator {
             fileProcessLogs.add(fileProcessLog);
         }
 
-        if (StringUtils.isBlank(dfsCsvRow.getMailDate())) {
+        if (BooleanUtils.isTrue(dfsCsvRow.isValid()) && StringUtils.isBlank(dfsCsvRow.getMailDate())) {
             fileProcessLog = new FileProcessLog();
             fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber()) ? null : parseSerialNumber(dfsCsvRow.getSerialNumber()));
             fileProcessLog.setFileName(fileName);
@@ -123,7 +126,7 @@ public class DFSFileValidator {
     }
 
     private void checkForValidSerialNumber(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer) {
-        if (StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
+        if (BooleanUtils.isTrue(dfsCsvRow.isValid()) && StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
             Long serialNumber = null;
             try {
                 serialNumber = Long.valueOf(dfsCsvRow.getSerialNumber());
@@ -142,7 +145,7 @@ public class DFSFileValidator {
 
     private void checkForDuplicate(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, List<String> serialNumbers, Integer integer) {
 
-        if (StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
+        if (BooleanUtils.isTrue(dfsCsvRow.isValid()) && StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
 
             String serialNumber = parseSerialNumber(dfsCsvRow.getSerialNumber());
             CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(serialNumber);
@@ -173,25 +176,24 @@ public class DFSFileValidator {
 
     private void checkForMailDateFormat(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, Integer integer) {
         Date date;
-        boolean validFormat = true;
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(MAIL_DATE_FORMAT);
-            date = sdf.parse(dfsCsvRow.getMailDate());
-            if (!dfsCsvRow.getMailDate().equals(sdf.format(date))) {
-                FileProcessLog fileProcessLog = new FileProcessLog();
-                fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber()) ? null : parseSerialNumber(dfsCsvRow.getSerialNumber()));
-                fileProcessLog.setFileName(fileName);
-                fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, MAIL_DATE));
-                fileProcessLogs.add(fileProcessLog);
-                fileProcessLog.setProcessedDate(getCurrentDateWithTime());
-                validFormat = false;
+            if(BooleanUtils.isTrue(dfsCsvRow.isValid())) {
+                SimpleDateFormat sdf = new SimpleDateFormat(MAIL_DATE_FORMAT);
+                date = sdf.parse(dfsCsvRow.getMailDate());
+                if (!dfsCsvRow.getMailDate().equals(sdf.format(date))) {
+                    FileProcessLog fileProcessLog = new FileProcessLog();
+                    fileProcessLog.setSerialNumber(StringUtils.isBlank(dfsCsvRow.getSerialNumber()) ? null : parseSerialNumber(dfsCsvRow.getSerialNumber()));
+                    fileProcessLog.setFileName(fileName);
+                    fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.INVALID_MAIL_DATE.getMessage(), integer, MAIL_DATE));
+                    fileProcessLogs.add(fileProcessLog);
+                    fileProcessLog.setProcessedDate(getCurrentDateWithTime());
+                    dfsCsvRow.setValid(false);
+                }
             }
         } catch (Exception ex) {
             log.info("The mail date could not be parsed. " + ex);
-            validFormat = false;
+            dfsCsvRow.setValid(false);
         }
-
-        dfsCsvRow.setValid(validFormat);
     }
 
     private void addFileProcessLog(String fileName, DFSCsvRow dfsCsvRow, List<FileProcessLog> fileProcessLogs, String message, String field, Integer integer) {
