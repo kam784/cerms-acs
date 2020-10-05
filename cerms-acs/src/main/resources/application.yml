@@ -60,7 +60,7 @@ spring:
   # Other properties
     properties:
       mail:
-        debug: true
+        debug: false
         transport:
           protocol: smtp
         smtp:
@@ -76,8 +76,11 @@ server:
 logging:
   level:
     org.springframework.web: INFO
-    org.springframework.security: debug
-    org.springframework.aop.interceptor: info
+    org.springframework.security: DEBUG
+    org.springframework.aop.interceptor: INFO
+  file:
+    path: ../logs/cermsAcsLogs
+
 
 cerms:
   acs:

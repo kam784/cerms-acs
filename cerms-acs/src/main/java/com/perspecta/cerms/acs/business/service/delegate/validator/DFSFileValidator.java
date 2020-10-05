@@ -50,14 +50,14 @@ public class DFSFileValidator {
 					// check for empty fields and add to fileProcessLogs if error.
 					checkForEmptyFields(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
 
-					// check for duplicate serial number (in db or in the file itself).
-					checkForDuplicate(fileName, dfsCsvRow, fileProcessLogs, serialNumbers, rowNumber);
-
 					// check for valid serial number (valid range).
 					checkForValidSerialNumber(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
 
 					// check for valid mail date format.
 					checkForMailDateFormat(fileName, dfsCsvRow, fileProcessLogs, rowNumber);
+
+					// check for duplicate serial number (in db or in the file itself).
+					checkForDuplicate(fileName, dfsCsvRow, fileProcessLogs, serialNumbers, rowNumber);
 
 					if (StringUtils.isNotBlank(dfsCsvRow.getSerialNumber())) {
 						serialNumbers.add(parseSerialNumber(dfsCsvRow.getSerialNumber()));

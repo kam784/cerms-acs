@@ -33,8 +33,6 @@ public class DocumentProcessor {
 
         File folder = new File(documentResource.getSourceFolderPath());
 
-        log.info("The files are: " + folder.listFiles());
-
         File[] acsFiles = folder.listFiles();
 
         List<File> dfsFiles = new ArrayList<>();

@@ -51,7 +51,7 @@ public class FileOrganizationProcessor {
             }
 
         } catch (Exception e) {
-            log.warn("File move operation in could not be completed successfully" + e);
+            log.warn("File move operation could not be completed successfully" + e);
         }
     }
 
