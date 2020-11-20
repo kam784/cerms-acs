@@ -55,7 +55,7 @@ public class CermsAcsConverter {
 				.filter(SDCsvRow::isValid)
 				.map(sdCsvRow -> {
 					String serialNumber = sdCsvRow.getRawSerialNumber().replaceAll(
-							"[^a-zA-Z0-9]", "").substring(11, sdCsvRow.getRawSerialNumber().length()-5);
+							"[^a-zA-Z0-9]", "").substring(11, 20);
 
 					CermsAcs cermsAcs = Optional.ofNullable(cermsAcsRepository.findBySerialNumber(serialNumber)).orElse(null);
 

@@ -114,14 +114,13 @@ public class SDValidator {
 
 		//checkForNonNumericRawSerialNumber(fileName, sdCsvRow, fileProcessLogs, integer);
 
-		String serialNumber = sdCsvRow.getRawSerialNumber().replaceAll(
-				"[^a-zA-Z0-9]", "").substring(11, sdCsvRow.getRawSerialNumber().length()-5);
+		String serialNumber = getSerialNumber(sdCsvRow.getRawSerialNumber());
 
 		CermsAcs cermsAcs = cermsAcsRepository.findBySerialNumber(serialNumber);
 
 		if (Objects.isNull(cermsAcs)) {
 			FileProcessLog fileProcessLog = new FileProcessLog();
-			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : getSerialNumber(sdCsvRow.getRawSerialNumber()));
+			fileProcessLog.setSerialNumber(StringUtils.isBlank(sdCsvRow.getRawSerialNumber()) ? null : serialNumber);
 			fileProcessLog.setFileName(fileName);
 			fileProcessLog.setLogEntry(String.format(FileProcessErrorMessage.SERIAL_NUMBER_NOT_PRESENT.getMessage(), integer, SERIAL_NUMBER));
 			fileProcessLog.setProcessedDate(getCurrentDateWithTime());
@@ -187,6 +186,6 @@ public class SDValidator {
 
 	private String getSerialNumber(String rawSerialNumber) {
 		return rawSerialNumber.replaceAll(
-				"[^a-zA-Z0-9]", "").substring(9, rawSerialNumber.length()-4);
+				"[^a-zA-Z0-9]", "").substring(11, 20);
 	}
 }
